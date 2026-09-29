@@ -21,7 +21,8 @@ test("upload, switch conditions and wipe the slider", async ({ page }) => {
     await expect(after).toHaveAccessibleName(new RegExp(name.replace(/[()]/g, "\\$&")));
     await expect(page.locator(".stage__status")).toHaveText(/Drag the divider/);
   }
-  await expect(page.locator(".method .badge")).toHaveText("Modelled");
+  await expect(page.locator(".method .tag")).toHaveText("Modelled");
+  await expect(page.getByRole("img", { name: /Tone strip/ })).toBeVisible();
 
   const handle = page.getByRole("slider", { name: /Comparison/ });
   await handle.focus();

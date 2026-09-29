@@ -23,27 +23,23 @@ const ratio = (a: string, b: string) => contrastRatio(lum(a), lum(b));
 
 // [foreground, background]: text must reach 4.5:1.
 const TEXT_PAIRS: [string, string][] = [
-  ["ink", "bg"],
-  ["ink", "surface"],
-  ["ink", "surface-warm"],
-  ["ink", "sun"],
-  ["ink-muted", "bg"],
-  ["ink-muted", "surface"],
-  ["ink-muted", "surface-warm"],
-  ["ember", "bg"],
-  ["ember", "surface"],
-  ["measured-ink", "measured-bg"],
-  ["modelled-ink", "modelled-bg"],
-  ["illustrative-ink", "illustrative-bg"],
-  ["error-ink", "error-bg"],
+  ["shade", "paper"],
+  ["shade", "white"],
+  ["shade", "sun"],
+  ["shade-2", "paper"],
+  ["shade-2", "white"],
+  ["signal", "paper"],
+  ["signal", "white"],
+  ["white", "shade"],
 ];
 
 // Focus rings, control borders, the slider handle: non-text UI needs 3:1.
 const UI_PAIRS: [string, string][] = [
-  ["ember", "bg"],
-  ["ember", "surface-warm"],
-  ["line-strong", "surface"],
-  ["ink", "sun"],
+  ["shade", "paper"],
+  ["shade", "sun"],
+  ["rule-strong", "white"],
+  ["rule-strong", "paper"],
+  ["signal", "white"],
 ];
 
 describe("Sunlight's own colours", () => {

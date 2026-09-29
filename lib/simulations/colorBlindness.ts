@@ -53,9 +53,10 @@ export const deuteranopia: Condition = {
   name: "Deuteranopia (red–green)",
   family: "body",
   honesty: "modelled",
-  blurb: "The most common colour blindness. Your red error and green success are now the same mustard.",
+  blurb: "Red and green read as the same olive. So do your status chips.",
   method:
     "Machado et al. (2009) physiological model, applied in linear RGB. A good average; individual colour vision varies.",
   strength: { label: "Severity", default: 1 },
+  reading: (strength) => `Machado 2009 · severity ${clamp01(strength).toFixed(2)}`,
   apply: (src, strength) => applyLinearMatrix(src, mixMatrix(DEUTERANOPIA, clamp01(strength))),
 };

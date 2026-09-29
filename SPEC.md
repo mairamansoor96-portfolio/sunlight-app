@@ -101,6 +101,36 @@ Sunlight is warm, bright, and confident, with a little cheek about designers wor
 - **Copy:** direct and slightly wry, never preachy. "Looks great on your monitor. Let's go outside."
 - **Signature detail:** Sunlight's own interface passes every test it offers. A footer invites people to run Sunlight through Sunlight.
 
+## Visual language
+
+Agreed 29 Sep 2026 from the specimen page. Sunlight looks like a **field instrument for light**: precise, legible and quiet around the thing being measured.
+
+**Principles**
+
+- **Neutral around the image.** Designers judge colour here, so the interface is near-white and blue-black and never tints a screenshot.
+- **Warmth comes from the sun.** One strong yellow, used only as a fill for things you touch. Never used for text.
+- **Readings, not decoration.** Labels are real values: brightness, severity, L*, contrast ratios, the research behind a model.
+- **Pass our own tests.** WCAG AA throughout, and nothing relies on colour alone.
+
+**Colour:** Paper `#F6F6F3` (background), White `#FFFFFF` (frame, selected rows), Shade `#161C2B` (text, rules; the blue-black of daylight shadow), Shade 2 `#4A5266` (secondary text), Rule `#D3D6DC` and Rule strong `#7B8294` (row rules, control borders), Sun `#FFC400` (fills), Signal `#C4231A` (errors and destroyed tones only).
+
+**Type:** Optician Sans (eye-chart optotypes) for the wordmark and hero only, uppercase. Atkinson Hyperlegible Next (designed with the Braille Institute for low-vision readers) for everything you read. Atkinson Hyperlegible Mono for readings, values and section labels. All self-hosted, all OFL.
+
+**Form:** square corners (2 px), hairline rules instead of cards, no shadows, no gradients, no pills. The screenshot sits in a frame with crop marks. Circles are reserved for the sun handle, the selected-row marker and trust marks.
+
+**Signature elements**
+
+- **Eye-chart hero:** the headline set as a Snellen chart, lines shrinking, acuity (20/200 … 20/20) in the margin.
+- **Trust marks:** ● Measured, ◐ Modelled, ○ Illustrative, always with the word.
+- **Tone strip:** eleven greys, L* 0–100, run through the current condition, with merged steps hatched in Signal.
+- **Readouts:** each side of the comparison states what it shows in real units.
+
+**Motion:** one moment only. Changing condition wipes the processed side in like a shutter. None under reduced motion.
+
+**Voice in the UI:** one plain fact first, then at most one dry line. The joke never replaces the fact.
+
+**Avoid:** cream or tinted backgrounds, soft cards, shadows, pill buttons, pastel badges, italic accent phrases, yellow text.
+
 ## One-week scope
 
 **MVP:**

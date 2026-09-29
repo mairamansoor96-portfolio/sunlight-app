@@ -52,7 +52,7 @@ export function UploadZone({ onFile, onSample, error, compact }: Props) {
         </p>
       )}
       <div className="upload__actions">
-        <label htmlFor={inputId} className="button button--primary">
+        <label htmlFor={inputId} className="btn btn--sun">
           {compact ? "Try another screenshot" : "Choose a screenshot"}
         </label>
         <input
@@ -68,14 +68,15 @@ export function UploadZone({ onFile, onSample, error, compact }: Props) {
             e.target.value = "";
           }}
         />
-        <button type="button" className="button button--quiet" onClick={onSample}>
+        <button type="button" className="btn btn--line" onClick={onSample}>
           Use a sample screen
         </button>
       </div>
-      {!compact && <p className="upload__note">Your image stays on this device. Nothing is uploaded.</p>}
+      {!compact && <p className="upload__note reading">Your image stays on this device. Nothing is uploaded.</p>}
       {error && (
         <p id={errorId} className="upload__error" role="alert">
-          {error}
+          <b className="upload__error-code">Error</b>
+          <span>{error}</span>
         </p>
       )}
     </div>

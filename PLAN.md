@@ -17,6 +17,13 @@ The goal is to upload a screenshot, pick one of three conditions, and wipe betwe
 - [x] **Phase 5: Putting it together.** A picker grouped by family, a strength control, method text with an honesty label, and a debounced re-render.
 - [x] **Phase 6: Checks.** Unit tests for the maths and for the UI's own WCAG contrast. Playwright e2e tests on desktop and phone.
 
+## Visual language (done)
+
+- [x] Proposal and specimen page, agreed and written into SPEC.md → "Visual language".
+- [x] App restyled: tokens, self-hosted type, eye-chart hero, ruled picker with live thumbnails, trust marks, readouts, crop-marked frame, shutter wipe.
+- [x] Tone strip under the comparison.
+- [ ] Homepage and header personality (next).
+
 ## Slice 2: measured sunlight (the headline feature)
 
 - [ ] Settle the R values for the shade, overcast and direct-sun presets, using published display-reflectance and outdoor-illuminance figures (SPEC.md → open question). Cite them in the product.

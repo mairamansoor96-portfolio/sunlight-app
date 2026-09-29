@@ -1,16 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
-import { ConditionPicker, HonestyBadge } from "./ConditionPicker";
+import { ConditionPicker } from "./ConditionPicker";
 import { PixelCanvas } from "./PixelCanvas";
+import { ToneStrip } from "./ToneStrip";
+import { TrustTag } from "./TrustMark";
 import { UploadZone } from "./UploadZone";
 import { ImageLoadError, loadImageFile } from "@/lib/loadImage";
-import { CONDITIONS, HONESTY, applyConditions, getCondition } from "@/lib/simulations";
+import { CONDITIONS, HONESTY, applyConditions, getCondition, type PixelBuffer } from "@/lib/simulations";
+import { downscale } from "@/lib/thumbnail";
 
 const DEFAULT_STRENGTHS = Object.fromEntries(CONDITIONS.map((c) => [c.id, c.strength.default]));
 /** Wait for the strength slider to settle before re-rendering a large image. */
 const RENDER_DEBOUNCE_MS = 120;
+/** Thumbnail width in device pixels (shown at 40 CSS px). */
+const THUMB_WIDTH = 80;
 
 export function Studio() {
   const strengthId = useId();
@@ -19,12 +24,20 @@ export function Studio() {
   const [error, setError] = useState<string | null>(null);
   const [conditionId, setConditionId] = useState(CONDITIONS[0].id);
   const [strengths, setStrengths] = useState<Record<string, number>>(DEFAULT_STRENGTHS);
-  const [result, setResult] = useState<{ image: ImageData; key: string } | null>(null);
+  const [result, setResult] = useState<{ image: PixelBuffer; key: string; conditionId: string } | null>(null);
 
   const condition = getCondition(conditionId);
   const strength = strengths[conditionId];
+  const stack = useMemo(() => [{ id: conditionId, strength }], [conditionId, strength]);
   const renderKey = source ? `${fileName}|${conditionId}|${strength}` : "";
   const busy = source !== null && result?.key !== renderKey;
+
+  const small = useMemo(() => (source ? downscale(source, THUMB_WIDTH) : null), [source]);
+  const thumbs = useMemo(
+    () =>
+      small ? Object.fromEntries(CONDITIONS.map((c) => [c.id, c.apply(small, strengths[c.id])])) : {},
+    [small, strengths],
+  );
 
   const onFile = useCallback(async (file: File) => {
     setError(null);
@@ -52,14 +65,14 @@ export function Studio() {
     if (!source) return;
     let cancelled = false;
     const timer = window.setTimeout(() => {
-      const out = applyConditions(source, [{ id: conditionId, strength }]);
-      if (!cancelled) setResult({ image: new ImageData(out.data as ImageDataArray, out.width, out.height), key: renderKey });
+      const image = applyConditions(source, stack);
+      if (!cancelled) setResult({ image, key: renderKey, conditionId: stack[0].id });
     }, RENDER_DEBOUNCE_MS);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [source, conditionId, strength, renderKey]);
+  }, [source, stack, renderKey]);
 
   return (
     <div className="studio">
@@ -72,8 +85,9 @@ export function Studio() {
               Before and after
             </h2>
             <BeforeAfterSlider
-              beforeLabel="Your monitor"
-              afterLabel={condition.name}
+              left={{ label: "Your monitor", reading: "As designed" }}
+              right={{ label: condition.name, reading: condition.reading(strength) }}
+              wipeKey={result?.conditionId}
               before={<PixelCanvas image={source} label="Your screenshot, as uploaded" />}
               after={
                 <PixelCanvas
@@ -82,23 +96,27 @@ export function Studio() {
                 />
               }
             />
-            <p className="stage__status" role="status">
+            <p className="stage__status reading" role="status">
               {busy ? "Going outside…" : "Drag the divider, or focus it and use the arrow keys."}
             </p>
+            <ToneStrip stack={stack} conditionName={condition.name} />
           </section>
+
           <section className="studio__controls" aria-labelledby="controls-heading">
-            <h2 id="controls-heading" className="section-title">
+            <h2 id="controls-heading" className="controls__title">
               Pick a circumstance
             </h2>
-            <ConditionPicker selected={conditionId} onSelect={setConditionId} />
+            <ConditionPicker selected={conditionId} onSelect={setConditionId} thumbs={thumbs} />
 
             <div className="strength">
-              <label htmlFor={strengthId} className="strength__label">
-                {condition.strength.label}
-                <output htmlFor={strengthId} className="strength__value">
+              <div className="strength__top">
+                <label htmlFor={strengthId} className="strength__label">
+                  {condition.strength.label}
+                </label>
+                <output htmlFor={strengthId} className="reading">
                   {Math.round(strength * 100)}%
                 </output>
-              </label>
+              </div>
               <input
                 id={strengthId}
                 type="range"
@@ -111,13 +129,11 @@ export function Studio() {
             </div>
 
             <div className="method">
-              <p className="method__head">
-                <HonestyBadge honesty={condition.honesty} /> <span>{HONESTY[condition.honesty].meaning}</span>
-              </p>
+              <TrustTag honesty={condition.honesty} />
+              <p className="method__meaning">{HONESTY[condition.honesty].meaning}</p>
               <p className="method__body">{condition.method}</p>
             </div>
           </section>
-
         </div>
       )}
     </div>

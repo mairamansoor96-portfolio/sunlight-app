@@ -40,9 +40,10 @@ export const dimRoom: Condition = {
   name: "Dim room, battery saver",
   family: "environment",
   honesty: "modelled",
-  blurb: "In bed, lights off, 8% battery. Your dark-grey-on-black just left the chat.",
+  blurb: "The screen dims to as little as a quarter. Dark greys go first.",
   method:
-    "Brightness cut to about 25% in linear light, plus a shadow crush for the eye's lower contrast sensitivity in dim light. A simplified model, not a photometric measurement.",
+    "Brightness cut to as little as 25% in linear light, plus a shadow crush for the eye's lower contrast sensitivity in dim light. A simplified model, not a photometric measurement.",
   strength: { label: "How dim", default: 0.8 },
+  reading: (strength) => `Brightness ${Math.round(dimParams(strength).gain * 100)}%`,
   apply: dim,
 };

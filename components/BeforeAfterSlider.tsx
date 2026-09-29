@@ -1,24 +1,52 @@
 "use client";
 
-import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+
+interface Side {
+  label: string;
+  /** What this side shows, in real units, e.g. "Brightness 40%". */
+  reading: string;
+}
 
 interface Props {
   before: ReactNode;
   after: ReactNode;
-  beforeLabel: string;
-  afterLabel: string;
+  left: Side;
+  right: Side;
+  /** When this changes, the processed side wipes in from the right like a shutter. */
+  wipeKey?: string;
 }
 
 const clampPct = (n: number) => Math.min(100, Math.max(0, n));
 
 /**
- * Wipe between the original (left) and the simulated condition (right).
- * Drag anywhere on the image, or focus the handle and use the arrow keys.
+ * Wipe between the original (left) and the simulated condition (right), framed
+ * with crop marks like a calibration print. Drag anywhere on the image, or
+ * focus the handle and use the arrow keys.
  */
-export function BeforeAfterSlider({ before, after, beforeLabel, afterLabel }: Props) {
+export function BeforeAfterSlider({ before, after, left, right, wipeKey }: Props) {
   const [pos, setPos] = useState(50);
+  const posRef = useRef(pos);
   const frame = useRef<HTMLDivElement>(null);
+  const afterLayer = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
+  const firstWipe = useRef(true);
+
+  useEffect(() => {
+    posRef.current = pos;
+  }, [pos]);
+
+  useEffect(() => {
+    if (firstWipe.current) {
+      firstWipe.current = false;
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    afterLayer.current?.animate(
+      [{ clipPath: "inset(0 0 0 100%)" }, { clipPath: `inset(0 0 0 ${posRef.current}%)` }],
+      { duration: 320, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" },
+    );
+  }, [wipeKey]);
 
   const moveTo = useCallback((clientX: number) => {
     const rect = frame.current?.getBoundingClientRect();
@@ -61,38 +89,56 @@ export function BeforeAfterSlider({ before, after, beforeLabel, afterLabel }: Pr
 
   return (
     <div className="compare">
-      <div className="compare__tags" aria-hidden="true">
-        <span className="compare__tag">← {beforeLabel}</span>
-        <span className="compare__tag compare__tag--after">{afterLabel} →</span>
-      </div>
-      <div
-        ref={frame}
-        className="compare__frame"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        data-testid="compare-frame"
-      >
-        <div className="compare__layer">{before}</div>
-        <div className="compare__layer compare__layer--after" style={{ clipPath: `inset(0 0 0 ${pos}%)` }}>
-          {after}
+      <div className="readouts" aria-hidden="true">
+        <div className="readout">
+          <span className="reading">← Left</span>
+          <strong className="readout__name">{left.label}</strong>
+          <span className="reading">{left.reading}</span>
         </div>
-        <div className="compare__divider" style={{ left: `${pos}%` }}>
+        <div className="readout readout--right">
+          <span className="reading">Right →</span>
+          <strong className="readout__name">{right.label}</strong>
+          <span className="reading">{right.reading}</span>
+        </div>
+      </div>
+      <div className="crop">
+        <i />
+        <i />
+        <i />
+        <i />
+        <div
+          ref={frame}
+          className="compare__frame"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          data-testid="compare-frame"
+        >
+          <div className="compare__layer">{before}</div>
           <div
-            className="compare__handle"
-            role="slider"
-            tabIndex={0}
-            aria-label={`Comparison: ${beforeLabel} on the left, ${afterLabel} on the right`}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={shown}
-            aria-valuetext={`${shown}% ${beforeLabel}, ${100 - shown}% ${afterLabel}`}
-            onKeyDown={onKeyDown}
+            ref={afterLayer}
+            className="compare__layer compare__layer--after"
+            style={{ clipPath: `inset(0 0 0 ${pos}%)` }}
           >
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-              <path d="M9 6l-6 6 6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            {after}
+          </div>
+          <div className="compare__divider" style={{ left: `${pos}%` }}>
+            <div
+              className="compare__handle"
+              role="slider"
+              tabIndex={0}
+              aria-label={`Comparison: ${left.label} on the left, ${right.label} on the right`}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={shown}
+              aria-valuetext={`${shown}% ${left.label}, ${100 - shown}% ${right.label}`}
+              onKeyDown={onKeyDown}
+            >
+              <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
+                <path d="M6 4 1 9l5 5M12 4l5 5-5 5" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>

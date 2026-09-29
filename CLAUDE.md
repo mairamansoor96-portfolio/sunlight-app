@@ -11,14 +11,18 @@ Sunlight shows designers their interfaces in the conditions real users live in: 
 - **Browser only.** No backend, no storage, no uploads, no running cost. The screenshot never leaves the device. Next.js is built as a static export (`output: "export"`). Don't add API routes, server actions or anything else that needs a server.
 - **Honesty labels.** Every condition is labelled `measured`, `modelled` or `illustrative`, and shows its method text in the UI. Be conservative: a filter is not "measured" unless it's calculated from the screenshot's actual colours.
 - **Sunlight passes its own tests.** The UI meets WCAG 2.x AA. Colour tokens in `app/globals.css` are contrast-checked by `tests/unit/theme.test.ts`. Add a pair to that test whenever you add a token.
-- **Voice.** Warm, direct, slightly wry, never preachy. Tone example: "Looks great on your monitor. Let's go outside."
+- **Voice.** Warm, direct, slightly wry, never preachy. Tone example: "Looks great on your monitor. Let's go outside." In the UI: one plain fact first, then at most one dry line.
+- **Visual language.** A field instrument for light: neutral paper and blue-black, one sun yellow used only as a fill, hairline rules, square corners, no shadows or pills. SPEC.md → "Visual language" has the tokens, type and rules. Follow it for all new UI.
 
 ## Stack and layout
 
 - Next.js 16 (App Router), React 19, TypeScript (strict), plain CSS (`app/globals.css`, no Tailwind).
 - `lib/simulations/`: the conditions library. Each condition is a pure `Condition` (`types.ts`) whose `apply(PixelBuffer, strength) → PixelBuffer` must not mutate its input. Register new ones in `index.ts`. `applyConditions` runs a stack in order, which is how scenarios work. Simulations that model light work in **linear light** (`color.ts`).
 - `lib/loadImage.ts`: validates, decodes and downscales uploads (longest side capped at 3000 px).
-- `components/`: `Studio` (state and rendering), `UploadZone` (pick, drop, paste), `ConditionPicker` (grouped by family, radio group), `BeforeAfterSlider` (pointer and keyboard, `role="slider"`), `PixelCanvas`.
+- `lib/toneStrip.ts`: runs eleven L* greys through a condition stack and reports merged steps. `lib/thumbnail.ts`: area-averaged downscale for picker thumbnails.
+- Each `Condition` also has `reading(strength)`, the real-units text shown in the comparison readout.
+- `components/`: `Studio` (state and rendering), `UploadZone` (pick, drop, paste), `ConditionPicker` (ruled rows with live thumbnails, radio group), `BeforeAfterSlider` (readouts, crop marks, shutter wipe, pointer and keyboard, `role="slider"`), `ToneStrip`, `TrustMark`/`TrustTag`, `PixelCanvas`.
+- `app/fonts/`: self-hosted woff2 files and their licences. `npm run preview` embeds them.
 - `scripts/`: `sample-screen.html` is the source of `public/sample-screenshot.png`. Regenerate it with `npm run sample`.
 
 ## Commands

@@ -30,7 +30,12 @@ const result = await build({
   write: false,
 });
 
-const css = await readFile(`${root}app/globals.css`, "utf8");
+// Self-hosted fonts are referenced relative to app/; embed them so the page is one file.
+let css = await readFile(`${root}app/globals.css`, "utf8");
+for (const [ref, file] of css.matchAll(/url\("(\.\/fonts\/[^"]+\.woff2)"\)/g).map((m) => [m[0], m[1]])) {
+  const data = await readFile(`${root}app/${file}`);
+  css = css.replace(ref, `url(data:font/woff2;base64,${data.toString("base64")})`);
+}
 const js = result.outputFiles[0].text.replaceAll("</script", "<\\/script");
 
 await mkdir(out, { recursive: true });

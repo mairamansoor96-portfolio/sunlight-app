@@ -25,7 +25,7 @@ export interface Condition {
   name: string;
   family: Family;
   honesty: Honesty;
-  /** One wry, plain-language line shown in the picker. */
+  /** Shown for the selected condition: one plain fact, then at most one dry line. */
   blurb: string;
   /** What the simulation actually does and where it comes from, shown to users. */
   method: string;
@@ -34,6 +34,8 @@ export interface Condition {
     /** 0–1 */
     default: number;
   };
+  /** What this strength does, in real units, for the readout above the comparison. */
+  reading(strength: number): string;
   /** Pure: must not mutate `src`. `strength` is 0–1. */
   apply(src: PixelBuffer, strength: number): PixelBuffer;
 }
