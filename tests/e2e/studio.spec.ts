@@ -147,12 +147,12 @@ test.describe("live hero", () => {
     const overlay = page.getByTestId("hero-overlay");
     await expect(page.getByTestId("meter-readout")).toContainText("500 lux");
     await expect(overlay).toHaveAttribute("data-condition", "sunlight", { timeout: 3000 });
-    await expect(page.locator(".live-hero__readout")).toContainText("R 0.41");
+    await expect(page.locator(".live-hero__readout")).toContainText("Direct sunlight glare");
     await expect(page.getByTestId("meter-readout")).toContainText("100,000 lux · Direct sun");
     await expect(overlay).toHaveAttribute("data-condition", "dim-room", { timeout: 3000 });
     await expect(overlay).toHaveAttribute("data-condition", "blurred-vision", { timeout: 3000 });
     await expect(overlay).toHaveAttribute("data-condition", "deuteranopia", { timeout: 3000 });
-    await expect(page.locator(".live-hero__readout")).toContainText("Machado 2009");
+    await expect(page.locator(".live-hero__readout")).toContainText("Deuteranopia");
     await expect(overlay).toHaveAttribute("data-condition", "monitor", { timeout: 3000 });
   });
 

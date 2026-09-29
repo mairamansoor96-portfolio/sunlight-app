@@ -202,7 +202,7 @@ Agreed 29 Sep 2026 from the specimen page. Sunlight looks like a **field instrum
 
 **Signature elements**
 
-- **Live eye-chart hero:** the headline set as a Snellen chart, lines shrinking, acuity (20/200 … 20/20) in the margin, with a duochrome (red/green) test bar. The headline tours every condition on its own, two seconds each, using the same model as the pixel code (as SVG filters). The only control is a Pause tour button (WCAG 2.2.2). It pauses off-screen, stays quiet for screen readers while touring, and never starts on its own under reduced motion. The duochrome colours are content, like a screenshot, not part of the interface palette.
+- **Live eye-chart hero:** the headline set as a Snellen chart, lines shrinking, acuity (20/200 … 20/20) in the margin, with a duochrome (red/green) test bar. The headline tours every condition on its own, two seconds each, using the same model as the pixel code (as SVG filters). The only control is a Pause tour button (WCAG 2.2.2), beside one quiet line saying what is showing. Directly under the chart, the line "Designers check their work at a desk in perfect light. Your users don't." explains the headline, then a shorter muted line leads to the upload. It pauses off-screen, stays quiet for screen readers while touring, and never starts on its own under reduced motion. The duochrome colours are content, like a screenshot, not part of the interface palette.
 - **Trust marks:** ● Measured, ◐ Modelled, ○ Illustrative, always with the word.
 - **Tone strip:** eleven greys, L* 0–100, run through the current condition, with merged steps hatched in Signal.
 - **Readouts:** each side of the comparison states what it shows in real units.

@@ -25,10 +25,15 @@ export default function Home() {
         <main id="main">
           <section className="hero">
             <LiveHero />
-            <p className="hero__lede">
-              Accessibility is about circumstances, not only disabilities. Drop in a screenshot and see it the way
-              people actually use it: in bed at low brightness, without their glasses, or telling red from green.
-            </p>
+            <div className="hero__intro">
+              <p className="hero__line">
+                Designers check their work at a desk in perfect light. <strong>Your users don&rsquo;t.</strong>
+              </p>
+              <p className="hero__lede">
+                Accessibility is about circumstances, not only disabilities. Drop in a screenshot to see it in bright
+                sun, a dark bedroom, without glasses, or through colour blindness.
+              </p>
+            </div>
           </section>
 
           <Studio />

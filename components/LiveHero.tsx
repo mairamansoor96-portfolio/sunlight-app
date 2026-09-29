@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { TrustTag } from "./TrustMark";
 import { publishHeroCondition } from "@/lib/heroCondition";
 import { CONDITIONS, type FilterStep } from "@/lib/simulations";
 
@@ -30,14 +29,6 @@ const nextInTour = (id: string) => SEQUENCE[(SEQUENCE.indexOf(id) + 1) % SEQUENC
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const stepsFor = (id: string): FilterStep[] =>
   id === MONITOR ? [] : (HERO_CONDITIONS.find((c) => c.id === id)?.filter?.(HERO_STRENGTH) ?? []);
-
-/** What to look for, derived from what the model does rather than hand-written per condition. */
-function noteFor(steps: FilterStep[]): string {
-  if (steps.some((s) => s.kind === "blur")) return "Big letters survive. The 20/20 line goes first.";
-  if (steps.some((s) => s.kind === "linear")) return "Reflected light lifts every tone. Black turns grey and the rules fade.";
-  if (steps.every((s) => s.kind === "matrix")) return "Black and grey pass through unchanged. Watch the duochrome bar.";
-  return "The paper sinks to grey and the duochrome nearly goes black. Contrast is what’s left.";
-}
 
 /** The same model as the pixel code, as SVG filter primitives. */
 function Primitives({ steps }: { steps: FilterStep[] }) {
@@ -212,17 +203,7 @@ export function LiveHero() {
 
         {/* Quiet while touring, so screen readers aren't interrupted every few seconds. */}
         <p className="live-hero__readout" aria-live={playing ? "off" : "polite"}>
-          {condition ? (
-            <>
-              <span className="reading">
-                {condition.name} · {condition.reading(HERO_STRENGTH)}
-              </span>
-              <TrustTag honesty={condition.honesty} />
-              <span className="live-hero__note">{noteFor(activeSteps)}</span>
-            </>
-          ) : (
-            <span className="reading">Your monitor · As designed, in perfect light</span>
-          )}
+          Now showing: <strong>{condition ? condition.name : "Your monitor, as designed"}</strong>
         </p>
       </div>
     </div>

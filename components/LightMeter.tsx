@@ -17,21 +17,16 @@ export function LightMeter() {
 
   return (
     <div className="meter" aria-hidden="true">
-      <div className="meter__head">
-        <span className="meter__name">Light meter</span>
-        <span className="meter__readout" data-testid="meter-readout">
-          <strong>{formatLux(level.lux)}</strong> · {level.label}
-        </span>
-      </div>
+      <p className="meter__readout" data-testid="meter-readout">
+        <strong>{formatLux(level.lux)}</strong> · {level.label}
+      </p>
       <div className="meter__scale">
         {DECADES.map((d, i) => (
           <span
             key={d}
             className={`meter__tick${i === 0 ? " meter__tick--start" : i === DECADES.length - 1 ? " meter__tick--end" : ""}`}
             style={{ left: `${meterPosition(d)}%` }}
-          >
-            <span className="meter__tick-label">{short(d)}</span>
-          </span>
+          />
         ))}
         {LANDMARKS.map((l, i) => (
           <span
@@ -39,7 +34,7 @@ export function LightMeter() {
             className={`meter__landmark${i === 0 ? " meter__landmark--start" : i === LANDMARKS.length - 1 ? " meter__landmark--end" : ""}`}
             style={{ left: `${meterPosition(l.lux)}%` }}
           >
-            {l.label}
+            {l.label} · {short(l.lux)}
           </span>
         ))}
         <span className="meter__needle" style={{ left: `${meterPosition(level.lux)}%` }} />
