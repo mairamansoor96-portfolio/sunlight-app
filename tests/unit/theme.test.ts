@@ -31,6 +31,7 @@ const TEXT_PAIRS: [string, string][] = [
   ["signal", "paper"],
   ["signal", "white"],
   ["white", "shade"],
+  ["rule", "shade"],
   ["black", "duo-red"],
   ["black", "duo-green"],
 ];
@@ -42,6 +43,7 @@ const UI_PAIRS: [string, string][] = [
   ["rule-strong", "white"],
   ["rule-strong", "paper"],
   ["signal", "white"],
+  ["sun", "shade"],
 ];
 
 describe("Sunlight's own colours", () => {

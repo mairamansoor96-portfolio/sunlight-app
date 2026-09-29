@@ -208,61 +208,100 @@ export function Studio() {
             <ToneStrip stack={stack} conditionName={condition.name} />
           </section>
 
-          <section className="studio__controls" aria-labelledby="controls-heading">
-            <h2 id="controls-heading" className="controls__title">
-              Pick a circumstance
-            </h2>
-            <ConditionPicker selected={conditionId} onSelect={setConditionId} thumbs={thumbs} />
+          <section className="panel studio__controls" aria-labelledby="controls-heading">
+            <i className="panel__screw panel__screw--tl" aria-hidden="true" />
+            <i className="panel__screw panel__screw--tr" aria-hidden="true" />
+            <i className="panel__screw panel__screw--bl" aria-hidden="true" />
+            <i className="panel__screw panel__screw--br" aria-hidden="true" />
 
-            {hasControls ? (
-              <ConditionControls
-                condition={condition}
-                params={params}
-                onChange={(next) => setParamsById((all) => ({ ...all, [conditionId]: next }))}
-              />
-            ) : (
-              <div className="strength">
-                <div className="strength__top">
-                  <label htmlFor={strengthId} className="strength__label">
-                    {condition.strength.label}
-                  </label>
-                  <output htmlFor={strengthId} className="reading">
-                    {Math.round(strength * 100)}%
-                  </output>
-                </div>
-                <input
-                  id={strengthId}
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={Math.round(strength * 100)}
-                  onChange={(e) => setStrengths((s) => ({ ...s, [conditionId]: Number(e.target.value) / 100 }))}
-                />
+            <header className="panel__plate">
+              <h2 id="controls-heading" className="panel__name">
+                Controls
+              </h2>
+              <span className="panel__model">Sunlight · Mk I</span>
+              {/* Mirrors the stage status line, which is what assistive tech hears. */}
+              <span className="panel__status" aria-hidden="true">
+                <span className={`panel__lamp${busy ? "" : " is-lit"}`} />
+                {busy ? "Working" : "Ready"}
+              </span>
+            </header>
+
+            <div className="panel__body">
+              <div className="panel__section">
+                <p className="panel__legend">
+                  <span className="panel__num">01</span>Pick a circumstance
+                </p>
+                <ConditionPicker selected={conditionId} onSelect={setConditionId} thumbs={thumbs} />
               </div>
-            )}
 
-            <div className="method">
-              <TrustTag honesty={condition.honesty} />
-              <p className="method__meaning">{HONESTY[condition.honesty].meaning}</p>
-              <p className="method__body">{condition.method}</p>
-              {condition.assumptions && (
-                <p className="method__assumptions reading">Assumes {condition.assumptions(strength, params)}.</p>
-              )}
-              {condition.sources && (
-                <details className="method__sources">
-                  <summary>Sources</summary>
-                  <ul>
-                    {condition.sources.map((src) => (
-                      <li key={src.url}>
-                        <a href={src.url} target="_blank" rel="noreferrer">
-                          {src.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              )}
+              <div className="panel__section">
+                <p className="panel__legend">
+                  <span className="panel__num">02</span>Adjust
+                </p>
+                {hasControls ? (
+                  <ConditionControls
+                    condition={condition}
+                    params={params}
+                    onChange={(next) => setParamsById((all) => ({ ...all, [conditionId]: next }))}
+                  />
+                ) : (
+                  <div className="strength">
+                    <div className="strength__top">
+                      <label htmlFor={strengthId} className="strength__label">
+                        {condition.strength.label}
+                      </label>
+                      <output htmlFor={strengthId} className="panel__readout">
+                        {Math.round(strength * 100)}%
+                      </output>
+                    </div>
+                    <div className="fader">
+                      <input
+                        id={strengthId}
+                        className="fader__input"
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={Math.round(strength * 100)}
+                        onChange={(e) => setStrengths((s) => ({ ...s, [conditionId]: Number(e.target.value) / 100 }))}
+                      />
+                      <span className="fader__ticks" aria-hidden="true">
+                        {Array.from({ length: 11 }, (_, i) => (
+                          <i key={i} className={i % 5 === 0 ? "is-major" : undefined} />
+                        ))}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="panel__section">
+                <p className="panel__legend">
+                  <span className="panel__num">03</span>How this works
+                </p>
+                <div className="method">
+                  <TrustTag honesty={condition.honesty} />
+                  <p className="method__meaning">{HONESTY[condition.honesty].meaning}</p>
+                  <p className="method__body">{condition.method}</p>
+                  {condition.assumptions && (
+                    <p className="method__assumptions reading">Assumes {condition.assumptions(strength, params)}.</p>
+                  )}
+                  {condition.sources && (
+                    <details className="method__sources">
+                      <summary>Sources</summary>
+                      <ul>
+                        {condition.sources.map((src) => (
+                          <li key={src.url}>
+                            <a href={src.url} target="_blank" rel="noreferrer">
+                              {src.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                </div>
+              </div>
             </div>
           </section>
         </div>

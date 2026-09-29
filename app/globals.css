@@ -469,15 +469,169 @@ kbd {
 }
 
 .studio__controls {
-  display: grid;
-  gap: 20px;
   min-width: 0;
 }
 
-.controls__title {
+/* ---------- Control panel: the faceplate of a field instrument ----------
+   A heavy enclosure, a nameplate with a status lamp, numbered sections in the
+   order you use them, and hardware-style controls. Rules, not shadows. */
+
+.panel {
+  position: relative;
+  border: 2px solid var(--shade);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.panel__screw {
+  position: absolute;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+/* The slot, turned a different way on each screw, as they would be. */
+.panel__screw::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 1px;
+  right: 1px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: var(--shade-2);
+  transform: rotate(var(--turn, 45deg));
+}
+
+.panel__screw--tl {
+  top: 7px;
+  left: 7px;
+}
+.panel__screw--tr {
+  top: 7px;
+  right: 7px;
+  --turn: -20deg;
+}
+.panel__screw--bl {
+  bottom: 7px;
+  left: 7px;
+  --turn: 80deg;
+}
+.panel__screw--br {
+  bottom: 7px;
+  right: 7px;
+  --turn: 10deg;
+}
+
+.panel__plate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 12px 28px 11px;
+  background: var(--shade);
+  color: var(--white);
+}
+
+.panel__name {
   margin: 0;
-  font-size: var(--step-2);
-  line-height: 1.2;
+  font-family: var(--eye);
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.panel__model {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--rule);
+}
+
+.panel__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rule);
+}
+
+.panel__lamp {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--rule-strong);
+  background: var(--shade);
+}
+
+.panel__lamp.is-lit {
+  border-color: var(--sun);
+  background: var(--sun);
+}
+
+.panel__body {
+  display: grid;
+  padding: 4px 20px 26px;
+}
+
+.panel__section {
+  display: grid;
+  gap: 12px;
+  padding-block: 18px;
+}
+
+.panel__section + .panel__section {
+  border-top: 1px solid var(--shade);
+}
+
+/* Engraved legend: a boxed section number, then the label. */
+.panel__legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.panel__num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 4px;
+  border: 1.5px solid var(--shade);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel__readout {
+  min-width: 3.5em;
+  padding: 1px 6px;
+  border: 1.5px solid var(--shade);
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* The section rule already closes the list; avoid a doubled line. */
+.panel .family:last-child .row:last-child {
+  border-bottom: 0;
+}
+
+.panel .method {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .stage__status {
@@ -625,7 +779,7 @@ kbd {
 .strength__top {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
 }
 
@@ -633,11 +787,76 @@ kbd {
   font-weight: 700;
 }
 
-.strength input[type="range"] {
+/* Fader: a grooved track, a square sun cap, and tick marks every 10%. */
+.fader {
+  --cap: 18px;
+  display: grid;
+}
+
+.fader__input {
   width: 100%;
   min-height: 44px;
   margin: 0;
-  accent-color: var(--shade);
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.fader__input:focus-visible {
+  outline: 3px solid var(--shade);
+  outline-offset: 2px;
+}
+
+.fader__input::-webkit-slider-runnable-track {
+  height: 8px;
+  border: 1.5px solid var(--shade);
+  background: var(--paper);
+}
+
+.fader__input::-moz-range-track {
+  height: 8px;
+  border: 1.5px solid var(--shade);
+  background: var(--paper);
+}
+
+.fader__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--cap);
+  height: 34px;
+  margin-top: -14.5px;
+  border: 2px solid var(--shade);
+  border-radius: var(--radius);
+  background: var(--sun) linear-gradient(var(--shade), var(--shade)) center / 2px 60% no-repeat;
+}
+
+.fader__input::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--cap);
+  height: 34px;
+  border: 2px solid var(--shade);
+  border-radius: var(--radius);
+  background: var(--sun) linear-gradient(var(--shade), var(--shade)) center / 2px 60% no-repeat;
+}
+
+/* Ticks line up with the cap's centre at 0%, 10% … 100%. */
+.fader__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-inline: calc(var(--cap) / 2 - 0.75px);
+  height: 8px;
+}
+
+.fader__ticks i {
+  width: 1.5px;
+  height: 5px;
+  background: var(--shade-2);
+}
+
+.fader__ticks i.is-major {
+  height: 8px;
+  background: var(--shade);
 }
 
 .method {
@@ -681,6 +900,7 @@ kbd {
 }
 
 /* Square segments; the real radio covers each one. */
+/* Push buttons: a deeper bottom edge reads as key travel; pressed keys sink 1 px. */
 .segment {
   position: relative;
   display: inline-flex;
@@ -688,6 +908,7 @@ kbd {
   min-height: 44px;
   padding: 0 12px;
   border: 1.5px solid var(--rule-strong);
+  border-bottom-width: 4px;
   border-radius: var(--radius);
   background: var(--white);
   font-weight: 700;
@@ -701,7 +922,9 @@ kbd {
 
 .segment.is-on {
   border: 2px solid var(--shade);
+  border-bottom-width: 3px;
   background: var(--sun);
+  transform: translateY(1px);
 }
 
 .segment:has(input:focus-visible) {

@@ -194,7 +194,9 @@ Agreed 29 Sep 2026 from the specimen page. Sunlight looks like a **field instrum
 
 **Type:** Optician Sans (eye-chart optotypes) for the wordmark and hero only, uppercase. Atkinson Hyperlegible Next (designed with the Braille Institute for low-vision readers) for everything you read. Atkinson Hyperlegible Mono for readings, values and section labels. All self-hosted, all OFL.
 
-**Form:** square corners (2 px), hairline rules instead of cards, no shadows, no gradients, no pills. The screenshot sits in a frame with crop marks. Circles are reserved for the sun handle, the selected-row marker and trust marks.
+**Form:** square corners (2 px), hairline rules instead of cards, no shadows, no gradients, no pills. The screenshot sits in a frame with crop marks. Circles are reserved for the sun handle, the selected-row marker, trust marks and panel screws.
+
+**Control panel:** the settings column is the instrument's faceplate. It has a 2 px Shade enclosure on White with a screw in each corner, and a Shade nameplate ("Controls", model "Sunlight · Mk I") with a square status lamp: Sun when the preview is ready, dark while rendering. Sections are numbered in the order you use them (01 Pick a circumstance, 02 Adjust, 03 How this works) and divided by Shade rules. Segment buttons have a deeper bottom edge for key travel and sink 1 px when on. The strength slider is a fader: a grooved track, a square Sun cap and tick marks every 10%.
 
 **Signature elements**
 
