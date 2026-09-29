@@ -301,61 +301,6 @@ kbd {
   gap: 10px;
 }
 
-.lens {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.lens .label {
-  padding: 0 0 6px;
-}
-
-.lens__options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Square segments; the real radio covers each one. */
-.lens__option {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1.5px solid var(--rule-strong);
-  border-radius: var(--radius);
-  background: var(--white);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.lens__option:hover {
-  border-color: var(--shade);
-}
-
-.lens__option.is-on {
-  border: 2px solid var(--shade);
-  background: var(--sun);
-}
-
-.lens__option:has(input:focus-visible) {
-  outline: 3px solid var(--shade);
-  outline-offset: 2px;
-}
-
-.lens__input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
 .tour-toggle {
   justify-self: start;
   display: inline-flex;

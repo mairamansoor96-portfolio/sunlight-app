@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { TrustTag } from "./TrustMark";
-import { CONDITIONS, type Condition, type FilterStep } from "@/lib/simulations";
+import { CONDITIONS, type FilterStep } from "@/lib/simulations";
 
 /** The headline set as an eye chart: each line smaller, Snellen acuity in the margin. */
 const LINES = [
@@ -16,19 +16,17 @@ const MONITOR = "monitor";
 /** The hero shows every condition at full strength. */
 const HERO_STRENGTH = 1;
 /**
- * The tour: a moment after load the headline cycles through every condition,
- * holding each one. It has a pause button (WCAG 2.2.2), stops for good when the
- * visitor picks a condition, pauses off-screen, and never starts on its own
- * for people who prefer reduced motion.
+ * The tour: the headline cycles through every condition on its own, holding
+ * each one. It has a pause button (WCAG 2.2.2), pauses off-screen, and never
+ * starts on its own for people who prefer reduced motion.
  */
-const TOUR = { startMs: 1500, holdMs: 3200 };
-const WIPE_MS = 700;
+const TOUR = { holdMs: 2000 };
+const WIPE_MS = 500;
 
 const HERO_CONDITIONS = CONDITIONS.filter((c) => c.filter);
 const SEQUENCE = [MONITOR, ...HERO_CONDITIONS.map((c) => c.id)];
 const nextInTour = (id: string) => SEQUENCE[(SEQUENCE.indexOf(id) + 1) % SEQUENCE.length];
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const shortName = (c: Condition) => c.name.split(/[,(]/)[0].trim();
 const stepsFor = (id: string): FilterStep[] =>
   id === MONITOR ? [] : (HERO_CONDITIONS.find((c) => c.id === id)?.filter?.(HERO_STRENGTH) ?? []);
 
@@ -95,7 +93,7 @@ export function LiveHero() {
   const [playing, setPlaying] = useState(false);
   const [onScreen, setOnScreen] = useState(true);
   const activeRef = useRef(active);
-  const touched = useRef(false);
+  const paused = useRef(false);
   const stage = useRef<HTMLDivElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
   const firstRender = useRef(true);
@@ -109,14 +107,14 @@ export function LiveHero() {
     setActive(id);
   }, []);
 
-  // Start the tour shortly after load.
+  // Start the tour after the first hold, unless the visitor prefers reduced motion.
   useEffect(() => {
     if (prefersReducedMotion()) return;
     const timer = window.setTimeout(() => {
-      if (touched.current) return;
+      if (paused.current) return;
       setPlaying(true);
       choose(nextInTour(activeRef.current));
-    }, TOUR.startMs);
+    }, TOUR.holdMs);
     return () => window.clearTimeout(timer);
   }, [choose]);
 
@@ -137,10 +135,11 @@ export function LiveHero() {
   }, []);
 
   const togglePlaying = () => {
-    touched.current = true;
     if (playing) {
+      paused.current = true;
       setPlaying(false);
     } else {
+      paused.current = false;
       setPlaying(true);
       choose(nextInTour(activeRef.current));
     }
@@ -188,31 +187,6 @@ export function LiveHero() {
       </div>
 
       <div className="live-hero__controls">
-        <fieldset className="lens">
-          <legend className="label">See this headline</legend>
-          <div className="lens__options">
-            {[{ id: MONITOR, label: "Your monitor" }, ...HERO_CONDITIONS.map((c) => ({ id: c.id, label: shortName(c) }))].map(
-              (o) => (
-                <label key={o.id} className={`lens__option${o.id === active ? " is-on" : ""}`}>
-                  <input
-                    type="radio"
-                    name={`${uid}-lens`}
-                    value={o.id}
-                    checked={o.id === active}
-                    onChange={() => {
-                      touched.current = true;
-                      setPlaying(false);
-                      choose(o.id);
-                    }}
-                    className="lens__input"
-                  />
-                  {o.label}
-                </label>
-              ),
-            )}
-          </div>
-        </fieldset>
-
         <button
           type="button"
           className="tour-toggle"

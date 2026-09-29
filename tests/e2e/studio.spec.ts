@@ -80,34 +80,28 @@ test("opens images that arrive without a file type, as phone galleries often sen
 });
 
 test.describe("live hero", () => {
-  test("runs the headline through a chosen condition", async ({ page }) => {
+  test("tours every condition on its own, two seconds each", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Looks great on your monitor. Let’s go outside.");
-    await page.locator(".live-hero").getByRole("radio", { name: "Deuteranopia" }).check();
-    await expect(page.getByTestId("hero-overlay")).toHaveAttribute("data-condition", "deuteranopia");
+    await expect(page.locator(".live-hero").getByRole("radio")).toHaveCount(0);
+    const overlay = page.getByTestId("hero-overlay");
+    await expect(overlay).toHaveAttribute("data-condition", "dim-room", { timeout: 3000 });
+    await expect(overlay).toHaveAttribute("data-condition", "blurred-vision", { timeout: 3000 });
+    await expect(overlay).toHaveAttribute("data-condition", "deuteranopia", { timeout: 3000 });
     await expect(page.locator(".live-hero__readout")).toContainText("Machado 2009");
-    await page.locator(".live-hero").getByRole("radio", { name: "Your monitor" }).check();
-    await expect(page.locator(".live-hero__readout")).toContainText("As designed");
+    await expect(overlay).toHaveAttribute("data-condition", "monitor", { timeout: 3000 });
   });
 
-  test("tours every condition on its own, and pauses", async ({ page }) => {
+  test("pauses and resumes", async ({ page }) => {
     await page.goto("/");
     const overlay = page.getByTestId("hero-overlay");
-    await expect(overlay).toHaveAttribute("data-condition", "dim-room", { timeout: 4000 });
-    await expect(overlay).toHaveAttribute("data-condition", "blurred-vision", { timeout: 5000 });
-
+    await expect(overlay).toHaveAttribute("data-condition", "dim-room", { timeout: 3000 });
     await page.getByRole("button", { name: /Pause tour/ }).click();
     const held = await overlay.getAttribute("data-condition");
-    await page.waitForTimeout(4000);
+    await page.waitForTimeout(3000);
     await expect(overlay).toHaveAttribute("data-condition", held!);
-    await expect(page.getByRole("button", { name: /Play tour/ })).toBeVisible();
-  });
-
-  test("stops touring when the visitor picks a condition", async ({ page }) => {
-    await page.goto("/");
-    await page.locator(".live-hero").getByRole("radio", { name: "Deuteranopia" }).check();
-    await page.waitForTimeout(4500);
-    await expect(page.getByTestId("hero-overlay")).toHaveAttribute("data-condition", "deuteranopia");
+    await page.getByRole("button", { name: /Play tour/ }).click();
+    await expect(overlay).not.toHaveAttribute("data-condition", held!);
   });
 
   test("stays still for people who prefer reduced motion", async ({ page }) => {
