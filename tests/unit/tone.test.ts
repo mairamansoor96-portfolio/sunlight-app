@@ -59,3 +59,26 @@ describe("downscale", () => {
     expect(downscale(src, 80).width).toBe(10);
   });
 });
+
+import { ambientFor, formatLux, meterPosition } from "@/lib/lightLevels";
+
+describe("light meter", () => {
+  it("maps 1 and 100,000 lux to the ends of a log scale", () => {
+    expect(meterPosition(1)).toBe(0);
+    expect(meterPosition(100_000)).toBe(100);
+    expect(meterPosition(1_000)).toBeCloseTo(60, 6);
+    expect(meterPosition(0)).toBe(0);
+    expect(meterPosition(1e7)).toBe(100);
+  });
+
+  it("puts sunlight at the spec's direct-sun level and leaves non-light conditions at the desk", () => {
+    expect(ambientFor("sunlight").lux).toBe(100_000);
+    expect(ambientFor("dim-room").lux).toBe(1);
+    expect(ambientFor("blurred-vision").lux).toBe(500);
+    expect(ambientFor("monitor").label).toBe("Your desk");
+  });
+
+  it("formats lux with thousands separators", () => {
+    expect(formatLux(100_000)).toBe("100,000 lux");
+  });
+});

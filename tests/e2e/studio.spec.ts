@@ -145,8 +145,10 @@ test.describe("live hero", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Looks great on your monitor. Let’s go outside.");
     await expect(page.locator(".live-hero").getByRole("radio")).toHaveCount(0);
     const overlay = page.getByTestId("hero-overlay");
+    await expect(page.getByTestId("meter-readout")).toContainText("500 lux");
     await expect(overlay).toHaveAttribute("data-condition", "sunlight", { timeout: 3000 });
     await expect(page.locator(".live-hero__readout")).toContainText("R 0.41");
+    await expect(page.getByTestId("meter-readout")).toContainText("100,000 lux · Direct sun");
     await expect(overlay).toHaveAttribute("data-condition", "dim-room", { timeout: 3000 });
     await expect(overlay).toHaveAttribute("data-condition", "blurred-vision", { timeout: 3000 });
     await expect(overlay).toHaveAttribute("data-condition", "deuteranopia", { timeout: 3000 });

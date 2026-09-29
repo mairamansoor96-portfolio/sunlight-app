@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { TrustTag } from "./TrustMark";
+import { publishHeroCondition } from "@/lib/heroCondition";
 import { CONDITIONS, type FilterStep } from "@/lib/simulations";
 
 /** The headline set as an eye chart: each line smaller, Snellen acuity in the margin. */
@@ -109,6 +110,7 @@ export function LiveHero() {
 
   useEffect(() => {
     activeRef.current = active;
+    publishHeroCondition(active);
   }, [active]);
 
   const choose = useCallback((id: string) => {

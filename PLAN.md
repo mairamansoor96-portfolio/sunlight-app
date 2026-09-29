@@ -23,7 +23,8 @@ The goal is to upload a screenshot, pick one of three conditions, and wipe betwe
 - [x] App restyled: tokens, self-hosted type, eye-chart hero, ruled picker with live thumbnails, trust marks, readouts, crop-marked frame, shutter wipe.
 - [x] Tone strip under the comparison.
 - [x] Live hero: the eye-chart headline runs through each condition (same model, as SVG filters), with a duochrome bar for colour vision. Tours every condition automatically (2 s each); the only control is Pause tour.
-- [ ] Header personality (next).
+- [x] Header personality: a light meter (log lux scale, sun needle following the hero) and "Designed at 500 lux. Used at 100,000."
+- [x] Settings column as an instrument control panel.
 
 ## Slice 2: measured sunlight (the headline feature)
 

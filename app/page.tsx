@@ -1,3 +1,4 @@
+import { LightMeter } from "@/components/LightMeter";
 import { LiveHero } from "@/components/LiveHero";
 import { Studio } from "@/components/Studio";
 
@@ -9,11 +10,16 @@ export default function Home() {
       </a>
       <div className="page">
         <header className="mast">
-          <p className="wordmark">
-            <span className="wordmark__disc" aria-hidden="true" />
-            Sunlight
-          </p>
-          <p className="reading">Your interface, outdoors</p>
+          <div className="mast__top">
+            <p className="wordmark">
+              <span className="wordmark__disc" aria-hidden="true" />
+              Sunlight
+            </p>
+            <p className="mast__quip">
+              Designed at 500 lux. <strong>Used at 100,000.</strong>
+            </p>
+          </div>
+          <LightMeter />
         </header>
 
         <main id="main">
