@@ -120,7 +120,7 @@ Agreed 29 Sep 2026 from the specimen page. Sunlight looks like a **field instrum
 
 **Signature elements**
 
-- **Eye-chart hero:** the headline set as a Snellen chart, lines shrinking, acuity (20/200 … 20/20) in the margin.
+- **Live eye-chart hero:** the headline set as a Snellen chart, lines shrinking, acuity (20/200 … 20/20) in the margin, with a duochrome (red/green) test bar. Visitors run the headline through any condition, using the same model as the pixel code (as SVG filters). It plays blurred vision once on load, and never under reduced motion. The duochrome colours are content, like a screenshot, not part of the interface palette.
 - **Trust marks:** ● Measured, ◐ Modelled, ○ Illustrative, always with the word.
 - **Tone strip:** eleven greys, L* 0–100, run through the current condition, with merged steps hatched in Signal.
 - **Readouts:** each side of the comparison states what it shows in real units.

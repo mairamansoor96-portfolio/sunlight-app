@@ -8,7 +8,7 @@ import { deuteranopia } from "./colorBlindness";
 import { dimRoom } from "./dimRoom";
 import type { AppliedCondition, Condition, Family, Honesty, PixelBuffer } from "./types";
 
-export type { AppliedCondition, Condition, Family, Honesty, PixelBuffer } from "./types";
+export type { AppliedCondition, Condition, Family, FilterStep, Honesty, PixelBuffer } from "./types";
 
 export const CONDITIONS: readonly Condition[] = [dimRoom, blurredVision, deuteranopia];
 

@@ -1,12 +1,5 @@
+import { LiveHero } from "@/components/LiveHero";
 import { Studio } from "@/components/Studio";
-
-/** The hero is set as an eye chart: each line smaller, with its Snellen acuity in the margin. */
-const CHART = [
-  { text: "Looks", acuity: "20/200" },
-  { text: "great on", acuity: "20/100" },
-  { text: "your monitor", acuity: "20/50" },
-  { text: "Let’s go outside", acuity: "20/20" },
-];
 
 export default function Home() {
   return (
@@ -24,16 +17,8 @@ export default function Home() {
         </header>
 
         <main id="main">
-          <section className="hero" aria-labelledby="hero-title">
-            <h1 id="hero-title" className="chart">
-              <span className="visually-hidden">Looks great on your monitor. Let&rsquo;s go outside.</span>
-              {CHART.map((line) => (
-                <span key={line.acuity} className="chart__line" aria-hidden="true">
-                  <span className="chart__text">{line.text}</span>
-                  <span className="chart__acuity">{line.acuity}</span>
-                </span>
-              ))}
-            </h1>
+          <section className="hero">
+            <LiveHero />
             <p className="hero__lede">
               Accessibility is about circumstances, not only disabilities. Drop in a screenshot and see it the way
               people actually use it: in bed at low brightness, without their glasses, or telling red from green.

@@ -13,7 +13,7 @@ const tokens = Object.fromEntries(
 );
 
 function lum(name: string) {
-  const hex = tokens[name];
+  const hex = name === "black" ? "#000000" : tokens[name];
   if (!hex) throw new Error(`Missing colour token --${name}`);
   const n = parseInt(hex.slice(1), 16);
   return relativeLuminance((n >> 16) & 255, (n >> 8) & 255, n & 255);
@@ -31,6 +31,8 @@ const TEXT_PAIRS: [string, string][] = [
   ["signal", "paper"],
   ["signal", "white"],
   ["white", "shade"],
+  ["black", "duo-red"],
+  ["black", "duo-green"],
 ];
 
 // Focus rings, control borders, the slider handle: non-text UI needs 3:1.

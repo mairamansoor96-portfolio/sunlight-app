@@ -20,8 +20,8 @@ Sunlight shows designers their interfaces in the conditions real users live in: 
 - `lib/simulations/`: the conditions library. Each condition is a pure `Condition` (`types.ts`) whose `apply(PixelBuffer, strength) → PixelBuffer` must not mutate its input. Register new ones in `index.ts`. `applyConditions` runs a stack in order, which is how scenarios work. Simulations that model light work in **linear light** (`color.ts`).
 - `lib/loadImage.ts`: validates, decodes and downscales uploads (longest side capped at 3000 px).
 - `lib/toneStrip.ts`: runs eleven L* greys through a condition stack and reports merged steps. `lib/thumbnail.ts`: area-averaged downscale for picker thumbnails.
-- Each `Condition` also has `reading(strength)`, the real-units text shown in the comparison readout.
-- `components/`: `Studio` (state and rendering), `UploadZone` (pick, drop, paste), `ConditionPicker` (ruled rows with live thumbnails, radio group), `BeforeAfterSlider` (readouts, crop marks, shutter wipe, pointer and keyboard, `role="slider"`), `ToneStrip`, `TrustMark`/`TrustTag`, `PixelCanvas`.
+- Each `Condition` also has `reading(strength)`, the real-units text shown in the comparison readout, and optionally `filter(strength)`, the same model as SVG filter steps for the live hero. `tests/unit/filter.test.ts` checks the two agree; keep them in sync when changing a model.
+- `components/`: `LiveHero` (eye-chart headline run through conditions via SVG filters), `Studio` (state and rendering), `UploadZone` (pick, drop, paste), `ConditionPicker` (ruled rows with live thumbnails, radio group), `BeforeAfterSlider` (readouts, crop marks, shutter wipe, pointer and keyboard, `role="slider"`), `ToneStrip`, `TrustMark`/`TrustTag`, `PixelCanvas`.
 - `app/fonts/`: self-hosted woff2 files and their licences. `npm run preview` embeds them.
 - `scripts/`: `sample-screen.html` is the source of `public/sample-screenshot.png`. Regenerate it with `npm run sample`.
 

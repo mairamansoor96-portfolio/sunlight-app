@@ -20,6 +20,18 @@ export type Family = "environment" | "device" | "body" | "situation";
  */
 export type Honesty = "measured" | "modelled" | "illustrative";
 
+/**
+ * One step of a condition expressed as a filter primitive, so the same model can
+ * run live on page elements (the hero) via SVG filters.
+ */
+export type FilterStep =
+  /** Gaussian blur in linear light. σ in points (≈ CSS px). */
+  | { kind: "blur"; sigmaPt: number }
+  /** Per-channel lookup on sRGB values 0–1, evenly sampled, linearly interpolated. */
+  | { kind: "table"; values: number[] }
+  /** Row-major 3×3 RGB matrix applied in linear light. */
+  | { kind: "matrix"; values: number[] };
+
 export interface Condition {
   id: string;
   name: string;
@@ -36,6 +48,8 @@ export interface Condition {
   };
   /** What this strength does, in real units, for the readout above the comparison. */
   reading(strength: number): string;
+  /** Optional: the same model as filter steps. Must match `apply` (tested). */
+  filter?(strength: number): FilterStep[];
   /** Pure: must not mutate `src`. `strength` is 0–1. */
   apply(src: PixelBuffer, strength: number): PixelBuffer;
 }

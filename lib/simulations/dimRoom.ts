@@ -11,8 +11,8 @@
  * Deliberately simple; the method text says so.
  */
 
-import { SRGB_TO_LINEAR, clamp01, linearToSrgb } from "./color";
-import type { Condition, PixelBuffer } from "./types";
+import { SRGB_TO_LINEAR, clamp01, linearToSrgb, srgbToLinear } from "./color";
+import type { Condition, FilterStep, PixelBuffer } from "./types";
 
 export function dimParams(strength: number): { gain: number; gamma: number } {
   const s = clamp01(strength);
@@ -35,6 +35,17 @@ export function dim(src: PixelBuffer, strength: number): PixelBuffer {
   return { width: src.width, height: src.height, data: out };
 }
 
+/** The dim curve sampled for an SVG table filter (65 points is within one 8-bit level of the LUT). */
+export function dimFilter(strength: number): FilterStep[] {
+  const { gain, gamma } = dimParams(strength);
+  const values = Array.from({ length: 65 }, (_, i) => {
+    const v = gain * srgbToLinear((i / 64) * 255) ** gamma;
+    const c = v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055;
+    return Math.min(1, Math.max(0, c));
+  });
+  return [{ kind: "table", values }];
+}
+
 export const dimRoom: Condition = {
   id: "dim-room",
   name: "Dim room, battery saver",
@@ -45,5 +56,6 @@ export const dimRoom: Condition = {
     "Brightness cut to as little as 25% in linear light, plus a shadow crush for the eye's lower contrast sensitivity in dim light. A simplified model, not a photometric measurement.",
   strength: { label: "How dim", default: 0.8 },
   reading: (strength) => `Brightness ${Math.round(dimParams(strength).gain * 100)}%`,
+  filter: dimFilter,
   apply: dim,
 };

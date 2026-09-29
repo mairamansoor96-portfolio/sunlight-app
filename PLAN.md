@@ -22,7 +22,8 @@ The goal is to upload a screenshot, pick one of three conditions, and wipe betwe
 - [x] Proposal and specimen page, agreed and written into SPEC.md → "Visual language".
 - [x] App restyled: tokens, self-hosted type, eye-chart hero, ruled picker with live thumbnails, trust marks, readouts, crop-marked frame, shutter wipe.
 - [x] Tone strip under the comparison.
-- [ ] Homepage and header personality (next).
+- [x] Live hero: the eye-chart headline runs through each condition (same model, as SVG filters), with a duochrome bar for colour vision.
+- [ ] Header personality (next).
 
 ## Slice 2: measured sunlight (the headline feature)
 

@@ -88,5 +88,6 @@ export const blurredVision: Condition = {
   strength: { label: "How far off the prescription is", default: 0.6 },
   // σ in points on a 390 pt wide phone, matching sigmaForWidth.
   reading: (strength) => `Defocus σ ${(clamp01(strength) * 1.5).toFixed(1)} pt`,
+  filter: (strength) => [{ kind: "blur", sigmaPt: clamp01(strength) * 1.5 }],
   apply: (src, strength) => gaussianBlur(src, sigmaForWidth(src.width, strength)),
 };

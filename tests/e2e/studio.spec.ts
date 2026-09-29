@@ -16,7 +16,7 @@ test("upload, switch conditions and wipe the slider", async ({ page }) => {
 
   // Every condition shows an honesty label.
   for (const name of ["Dim room, battery saver", "Blurred vision", "Deuteranopia (red–green)"]) {
-    const option = page.getByRole("radio", { name: new RegExp(name.replace(/[()]/g, "\\$&")) });
+    const option = page.locator(".studio__controls").getByRole("radio", { name: new RegExp(name.replace(/[()]/g, "\\$&")) });
     await option.check();
     await expect(after).toHaveAccessibleName(new RegExp(name.replace(/[()]/g, "\\$&")));
     await expect(page.locator(".stage__status")).toHaveText(/Drag the divider/);
@@ -45,7 +45,7 @@ test("upload, switch conditions and wipe the slider", async ({ page }) => {
 test("the simulated image really differs from the original", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Use a sample screen" }).click();
-  await page.getByRole("radio", { name: /Deuteranopia/ }).check();
+  await page.locator(".studio__controls").getByRole("radio", { name: /Deuteranopia/ }).check();
   await expect(page.locator(".stage__status")).toHaveText(/Drag the divider/);
 
   const differs = await page.evaluate(() => {
@@ -77,4 +77,28 @@ test("opens images that arrive without a file type, as phone galleries often sen
     buffer: readFileSync(SAMPLE),
   });
   await expect(page.getByRole("img", { name: /simulated/ })).toBeVisible();
+});
+
+test.describe("live hero", () => {
+  test("runs the headline through a chosen condition", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Looks great on your monitor. Let’s go outside.");
+    await page.locator(".live-hero").getByRole("radio", { name: "Deuteranopia" }).check();
+    await expect(page.getByTestId("hero-overlay")).toHaveAttribute("data-condition", "deuteranopia");
+    await expect(page.locator(".live-hero__readout")).toContainText("Machado 2009");
+    await page.locator(".live-hero").getByRole("radio", { name: "Your monitor" }).check();
+    await expect(page.locator(".live-hero__readout")).toContainText("As designed");
+  });
+
+  test("plays the blur once on load", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByTestId("hero-overlay")).toHaveAttribute("data-condition", "blurred-vision", { timeout: 5000 });
+  });
+
+  test("stays still for people who prefer reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    await page.waitForTimeout(2500);
+    await expect(page.getByTestId("hero-overlay")).toHaveAttribute("data-condition", "monitor");
+  });
 });

@@ -58,5 +58,6 @@ export const deuteranopia: Condition = {
     "Machado et al. (2009) physiological model, applied in linear RGB. A good average; individual colour vision varies.",
   strength: { label: "Severity", default: 1 },
   reading: (strength) => `Machado 2009 · severity ${clamp01(strength).toFixed(2)}`,
+  filter: (strength) => [{ kind: "matrix", values: [...mixMatrix(DEUTERANOPIA, clamp01(strength))] }],
   apply: (src, strength) => applyLinearMatrix(src, mixMatrix(DEUTERANOPIA, clamp01(strength))),
 };
