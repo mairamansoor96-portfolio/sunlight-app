@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Sunlight favicon: the wordmark's sun disc with eight rays. Rays follow the tab's theme. -->
+  <style>
+    .ray { stroke: #161c2b; }
+    .disc { fill: #ffc400; stroke: #161c2b; }
+    @media (prefers-color-scheme: dark) {
+      .ray { stroke: #f6f6f3; }
+    }
+  </style>
+  <g class="ray" stroke-width="2.6" stroke-linecap="square">
+    <path d="M16 1.5v4M16 26.5v4M1.5 16h4M26.5 16h4M5.7 5.7l2.8 2.8M23.5 23.5l2.8 2.8M5.7 26.3l2.8-2.8M23.5 8.5l2.8-2.8" />
+  </g>
+  <circle class="disc" cx="16" cy="16" r="7.6" stroke-width="2" />
+</svg>
