@@ -4,14 +4,14 @@
  */
 
 import { blurredVision } from "./blur";
-import { deuteranopia } from "./colorBlindness";
+import { deuteranopia, protanopia, tritanopia } from "./colorBlindness";
 import { dimRoom } from "./dimRoom";
 import { sunlight } from "./sunlight";
 import type { AppliedCondition, Condition, Family, Honesty, Params, PixelBuffer } from "./types";
 
 export type { AppliedCondition, Condition, ConditionControl, Family, FilterStep, Honesty, Params, PixelBuffer } from "./types";
 
-export const CONDITIONS: readonly Condition[] = [sunlight, dimRoom, blurredVision, deuteranopia];
+export const CONDITIONS: readonly Condition[] = [sunlight, dimRoom, blurredVision, deuteranopia, protanopia, tritanopia];
 
 export const FAMILIES: readonly { id: Family; name: string }[] = [
   { id: "environment", name: "Environment" },

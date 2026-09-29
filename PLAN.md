@@ -36,7 +36,7 @@ The goal is to upload a screenshot, pick one of three conditions, and wipe betwe
 
 ## Slice 3: the rest of the MVP conditions
 
-- [ ] Protanopia and tritanopia (Modelled). Each is a Machado matrix.
+- [x] Protanopia and tritanopia (Modelled). Machado 2009 matrices, sharing one factory with deuteranopia; tritanopia carries the paper's reliability caveat.
 - [ ] Cracked screen (Illustrative).
 - [ ] Low-resolution budget display, washed-out colours (Modelled).
 - [ ] Move processing into a Web Worker if large screenshots feel slow.

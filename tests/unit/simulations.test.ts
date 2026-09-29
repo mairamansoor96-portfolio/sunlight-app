@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { boxesForGauss, gaussianBlur, sigmaForWidth } from "@/lib/simulations/blur";
 import { contrastRatio, linearToSrgb, relativeLuminance, srgbToLinear } from "@/lib/simulations/color";
-import { DEUTERANOPIA, applyLinearMatrix, mixMatrix } from "@/lib/simulations/colorBlindness";
+import { DEUTERANOPIA, PROTANOPIA, TRITANOPIA, applyLinearMatrix, mixMatrix } from "@/lib/simulations/colorBlindness";
 import { dim } from "@/lib/simulations/dimRoom";
 import { CONDITIONS, applyConditions, getCondition } from "@/lib/simulations";
 import type { PixelBuffer } from "@/lib/simulations/types";
@@ -130,5 +130,38 @@ describe("registry", () => {
     ]);
     const manual = getCondition("dim-room").apply(getCondition("deuteranopia").apply(src, 1), 1);
     expect(stacked.data).toEqual(manual.data);
+  });
+});
+
+describe("protanopia and tritanopia (Machado 2009)", () => {
+  it.each([
+    ["protanopia", PROTANOPIA],
+    ["tritanopia", TRITANOPIA],
+  ] as const)("%s rows sum to 1, so greys pass through", (_, m) => {
+    for (let r = 0; r < 3; r++) expect(m[r * 3] + m[r * 3 + 1] + m[r * 3 + 2]).toBeCloseTo(1, 5);
+    const out = applyLinearMatrix(solid(1, 1, [128, 128, 128]), m);
+    for (const c of px(out, 0, 0).slice(0, 3)) expect(Math.abs(c - 128)).toBeLessThanOrEqual(1);
+  });
+
+  it("protanopia darkens red, deuteranopia much less so", () => {
+    const lum = (img: ReturnType<typeof solid>) => {
+      const [r, g, b] = px(img, 0, 0);
+      return relativeLuminance(r, g, b);
+    };
+    const red = solid(1, 1, [255, 0, 0]);
+    expect(lum(applyLinearMatrix(red, PROTANOPIA))).toBeLessThan(lum(applyLinearMatrix(red, DEUTERANOPIA)));
+  });
+
+  it("tritanopia pulls blue and green together", () => {
+    const blue = px(applyLinearMatrix(solid(1, 1, [40, 90, 220]), TRITANOPIA), 0, 0);
+    const green = px(applyLinearMatrix(solid(1, 1, [40, 170, 120]), TRITANOPIA), 0, 0);
+    const dist = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    expect(dist(blue, green)).toBeLessThan(dist([40, 90, 220], [40, 170, 120]));
+  });
+
+  it("registers both as Modelled body conditions with the tritanopia caveat", () => {
+    expect(getCondition("protanopia")).toMatchObject({ family: "body", honesty: "modelled" });
+    expect(getCondition("tritanopia").method).toContain("least reliable");
+    expect(getCondition("tritanopia").filter!(0.5)).toEqual([{ kind: "matrix", values: [...mixMatrix(TRITANOPIA, 0.5)] }]);
   });
 });

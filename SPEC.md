@@ -24,7 +24,7 @@ Conditions are grouped into four families. The grouping itself argues that acces
 | Device | Low-resolution budget display, washed-out colours | Modelled | Yes |
 | Device | Small screen, dead pixels | Illustrative | Later |
 | Body | Blurred vision, missing reading glasses | Modelled | Yes |
-| Body | Colour blindness (2–3 types) | Modelled | Yes |
+| Body | Colour blindness: deuteranopia, protanopia, tritanopia (Machado et al. 2009) | Modelled | Yes |
 | Body | Age-related yellowing of vision | Modelled | Later |
 | Body | Hand tremor | Interactive | Later |
 | Situation | One-second glance | Interactive | Yes |

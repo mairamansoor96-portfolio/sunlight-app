@@ -15,7 +15,14 @@ test("upload, switch conditions and wipe the slider", async ({ page }) => {
   await expect(page.locator(".stage__status")).toHaveText(/Drag the divider/);
 
   // Every condition shows an honesty label.
-  for (const name of ["Direct sunlight glare", "Dim room, battery saver", "Blurred vision", "Deuteranopia (red–green)"]) {
+  for (const name of [
+    "Direct sunlight glare",
+    "Dim room, battery saver",
+    "Blurred vision",
+    "Protanopia (red–green)",
+    "Tritanopia (blue–yellow)",
+    "Deuteranopia (red–green)",
+  ]) {
     const option = page.locator(".studio__controls").getByRole("radio", { name: new RegExp(name.replace(/[()]/g, "\\$&")) });
     await option.check();
     await expect(after).toHaveAccessibleName(new RegExp(name.replace(/[()]/g, "\\$&")));
@@ -165,6 +172,8 @@ test.describe("live hero", () => {
     await expect(overlay).toHaveAttribute("data-condition", "blurred-vision", { timeout: 3000 });
     await expect(overlay).toHaveAttribute("data-condition", "deuteranopia", { timeout: 3000 });
     await expect(page.locator(".live-hero__readout")).toContainText("Deuteranopia");
+    await expect(overlay).toHaveAttribute("data-condition", "protanopia", { timeout: 3000 });
+    await expect(overlay).toHaveAttribute("data-condition", "tritanopia", { timeout: 3000 });
     await expect(overlay).toHaveAttribute("data-condition", "monitor", { timeout: 3000 });
   });
 
