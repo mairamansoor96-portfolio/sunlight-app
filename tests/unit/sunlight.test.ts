@@ -12,6 +12,7 @@ import {
   sunlightSettings,
 } from "@/lib/simulations/sunlight";
 import { findPairs, fromHex, pairContrast, toHex } from "@/lib/contrastPairs";
+import { colourName, describePair } from "@/lib/colourNames";
 import type { PixelBuffer } from "@/lib/simulations";
 
 const grey = (v: number) => relativeLuminance(v, v, v);
@@ -138,5 +139,37 @@ describe("colour pairs", () => {
     expect(fromHex("#767676")).toEqual([118, 118, 118]);
     expect(fromHex("nope")).toBeNull();
     expect(toHex([196, 35, 26])).toBe("#C4231A");
+  });
+});
+
+describe("where pairs appear", () => {
+  it("records the grid cells where a pair meets", () => {
+    const [pair] = findPairs(page([{ colour: [20, 20, 30], x: 10, y: 10 }]));
+    expect(pair.where.cols).toBe(24);
+    expect(pair.where.cells.length).toBeGreaterThan(0);
+    // The strokes sit in the top-left of a 200 × 120 page, so no cell is in the bottom half.
+    const cellSize = 200 / pair.where.cols;
+    for (const c of pair.where.cells) expect(Math.floor(c / pair.where.cols) * cellSize).toBeLessThan(60);
+  });
+});
+
+describe("colour names", () => {
+  it.each([
+    [[0, 0, 0], "black"],
+    [[20, 22, 27], "near-black"],
+    [[118, 118, 118], "mid grey"],
+    [[195, 198, 204], "light grey"],
+    [[246, 247, 249], "off-white"],
+    [[255, 255, 255], "white"],
+    [[224, 68, 58], "red"],
+    [[47, 168, 79], "green"],
+    [[127, 196, 160], "pale green"],
+    [[20, 40, 120], "dark blue"],
+  ] as const)("%j is %s", (rgb, name) => {
+    expect(colourName(rgb)).toBe(name);
+  });
+
+  it("describes a pair in a sentence", () => {
+    expect(describePair([195, 198, 204], [246, 247, 249])).toBe("Light grey text on off-white");
   });
 });

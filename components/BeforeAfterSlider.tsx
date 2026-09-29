@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import type { PairLocation } from "@/lib/contrastPairs";
 
 interface Side {
   label: string;
@@ -19,6 +20,49 @@ interface Props {
   picking?: boolean;
   /** Called with the tapped point as fractions of the image's width and height. */
   onPick?: (fx: number, fy: number) => void;
+  /** Dims everything except these grid cells, to show where something appears. */
+  highlight?: PairLocation | null;
+  /** Increment to scroll the comparison into view (for example after "Show where"). */
+  reveal?: number;
+}
+
+/** Merge a row's adjacent cells into runs, so highlights read as lines of text rather than tiles. */
+function runs({ cols, cells }: PairLocation): { x: number; y: number; w: number }[] {
+  const out: { x: number; y: number; w: number }[] = [];
+  for (const c of [...cells].sort((a, b) => a - b)) {
+    const x = c % cols;
+    const y = Math.floor(c / cols);
+    const last = out[out.length - 1];
+    if (last && last.y === y && last.x + last.w === x) last.w++;
+    else out.push({ x, y, w: 1 });
+  }
+  return out;
+}
+
+function Spotlight({ where, id }: { where: PairLocation; id: string }) {
+  const boxes = runs(where);
+  return (
+    <svg
+      className="compare__spotlight"
+      viewBox={`0 0 ${where.cols} ${where.rows}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      data-testid="spotlight"
+    >
+      <defs>
+        <mask id={id}>
+          <rect width={where.cols} height={where.rows} fill="#fff" />
+          {boxes.map((b, i) => (
+            <rect key={i} x={b.x} y={b.y} width={b.w} height={1} fill="#000" />
+          ))}
+        </mask>
+      </defs>
+      <rect className="compare__spotlight-dim" width={where.cols} height={where.rows} mask={`url(#${id})`} />
+      {boxes.map((b, i) => (
+        <rect key={i} className="compare__spotlight-edge" x={b.x} y={b.y} width={b.w} height={1} />
+      ))}
+    </svg>
+  );
 }
 
 const clampPct = (n: number) => Math.min(100, Math.max(0, n));
@@ -28,7 +72,18 @@ const clampPct = (n: number) => Math.min(100, Math.max(0, n));
  * with crop marks like a calibration print. Drag anywhere on the image, or
  * focus the handle and use the arrow keys.
  */
-export function BeforeAfterSlider({ before, after, left, right, wipeKey, picking = false, onPick }: Props) {
+export function BeforeAfterSlider({
+  before,
+  after,
+  left,
+  right,
+  wipeKey,
+  picking = false,
+  onPick,
+  highlight,
+  reveal = 0,
+}: Props) {
+  const maskId = useId().replace(/[^a-zA-Z0-9_-]/g, "") + "-spot";
   const [pos, setPos] = useState(50);
   const posRef = useRef(pos);
   const frame = useRef<HTMLDivElement>(null);
@@ -52,12 +107,13 @@ export function BeforeAfterSlider({ before, after, left, right, wipeKey, picking
     );
   }, [wipeKey]);
 
-  // When picking starts, bring the screenshot into view: the pick button sits below it.
+  // When picking starts or a location is shown, bring the screenshot into view:
+  // the buttons that trigger both sit below it.
   useEffect(() => {
-    if (!picking) return;
+    if (!picking && reveal === 0) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     frame.current?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
-  }, [picking]);
+  }, [picking, reveal]);
 
   const moveTo = useCallback((clientX: number) => {
     const rect = frame.current?.getBoundingClientRect();
@@ -144,6 +200,7 @@ export function BeforeAfterSlider({ before, after, left, right, wipeKey, picking
           >
             {after}
           </div>
+          {highlight && highlight.cells.length > 0 && <Spotlight where={highlight} id={maskId} />}
           <div className="compare__divider" style={{ left: `${pos}%` }}>
             <div
               className="compare__handle"

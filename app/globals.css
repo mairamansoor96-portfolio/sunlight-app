@@ -745,12 +745,67 @@ kbd {
   min-width: 0;
 }
 
-.report__summary {
+.report__head {
+  display: grid;
+  gap: 6px;
   max-width: 44rem;
 }
 
-.report__summary strong {
-  font-weight: 700;
+.report__title {
+  margin: 0;
+  font-size: var(--step-2);
+  line-height: 1.2;
+}
+
+.report__explain {
+  color: var(--shade-2);
+}
+
+.report__explain strong {
+  color: var(--shade);
+}
+
+.report__summary {
+  display: grid;
+  gap: 6px;
+  max-width: 44rem;
+}
+
+.report__hardest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.show-where {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--shade);
+  font: 700 0.8125rem / 1 var(--body);
+  cursor: pointer;
+  justify-self: start;
+}
+
+.show-where:hover {
+  border-color: var(--shade);
+}
+
+.show-where[aria-pressed="true"] {
+  border: 2px solid var(--shade);
+  background: var(--sun);
+}
+
+.showing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  text-align: center;
 }
 
 .report__scroll {
@@ -811,12 +866,30 @@ kbd {
   font-size: 1rem;
 }
 
-.pair__hex {
+.pair__words {
   display: grid;
+  gap: 2px;
+  justify-items: start;
+  white-space: normal;
+  min-width: 11rem;
+}
+
+.pair__name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.pair__hex {
   font-family: var(--mono);
   font-size: 0.75rem;
   font-weight: 400;
   color: var(--shade-2);
+}
+
+.report__table tr.is-shown th,
+.report__table tr.is-shown td {
+  background: var(--white);
 }
 
 .pair__own {
@@ -826,10 +899,11 @@ kbd {
   color: var(--shade);
 }
 
-.ratio {
+.score {
   display: block;
   font-family: var(--mono);
-  font-size: var(--step--1);
+  font-size: var(--step-0);
+  font-weight: 600;
 }
 
 .verdict {
@@ -852,8 +926,20 @@ kbd {
   border: 0;
 }
 
-.own-pair .label {
+.own-pair {
+  display: grid;
+  gap: 8px;
+}
+
+.own-pair__title {
   padding: 0 0 6px;
+  font-weight: 700;
+  font-size: var(--step-1);
+}
+
+.own-pair__help {
+  max-width: 44rem;
+  color: var(--shade-2);
 }
 
 .own-pair__row {
@@ -997,6 +1083,27 @@ kbd {
   width: 100%;
   height: 100%;
   max-height: none;
+}
+
+/* Shows where a colour combination is used: everything else dims. */
+.compare__spotlight {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.compare__spotlight-dim {
+  fill: var(--shade);
+  opacity: 0.6;
+}
+
+.compare__spotlight-edge {
+  fill: none;
+  stroke: var(--white);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
 }
 
 .compare__divider {

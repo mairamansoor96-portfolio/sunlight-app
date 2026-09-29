@@ -89,7 +89,9 @@ test.describe("sunlight", () => {
 
   test("measures the screenshot's colour pairs and states the assumptions", async ({ page }) => {
     const summary = page.locator(".report__summary");
-    await expect(summary).toContainText(/\d+ of \d+ colour pairs pass indoors\. In direct sun on a mid-range phone/);
+    await expect(page.getByRole("heading", { name: "Can people still read it outside?" })).toBeVisible();
+    await expect(summary).toContainText(/\d+ of \d+ text colour combinations are readable indoors\. In direct sun on a mid-range phone/);
+    await expect(summary).toContainText("Hardest to read:");
     await expect(page.locator(".report__table tbody tr")).toHaveCount(6);
     await expect(page.locator(".report__assumptions")).toContainText("100,000 lux");
     await expect(page.locator(".method .tag")).toHaveText("Measured");
@@ -111,7 +113,17 @@ test.describe("sunlight", () => {
     await page.mouse.click(box.x + box.width * 0.1, box.y + box.height * 0.26);
     await expect(page.locator(".stage__status")).toContainText("background");
     await page.mouse.click(box.x + box.width * 0.9, box.y + box.height * 0.2);
-    await expect(page.locator(".pair__own")).toHaveText("Your pair");
+    await expect(page.locator(".pair__own")).toHaveText("Your text");
+  });
+
+  test("shows where a colour combination is used", async ({ page }) => {
+    await expect(page.getByTestId("spotlight")).toHaveCount(0);
+    await page.locator(".report__table").getByRole("button", { name: "Show where" }).first().click();
+    await expect(page.getByTestId("spotlight")).toBeVisible();
+    await expect(page.locator(".showing")).toContainText("Showing where");
+    await expect(page.getByTestId("compare-frame")).toBeInViewport();
+    await page.locator(".showing").getByRole("button", { name: "Hide" }).click();
+    await expect(page.getByTestId("spotlight")).toHaveCount(0);
   });
 
   test("offers keyboard colour inputs as well as picking", async ({ page }) => {
@@ -122,7 +134,8 @@ test.describe("sunlight", () => {
     });
     await expect(page.locator(".pair__own")).toBeVisible();
     await expect(page.locator(".report__table")).toContainText("#595959 on #FFFFFF");
-    await expect(page.locator(".report__table tbody tr").first()).toContainText("7.00:1");
+    await expect(page.locator(".report__table tbody tr").first()).toContainText("7.00");
+    await expect(page.locator(".report__table tbody tr").first()).toContainText("Mid grey text on white");
   });
 });
 

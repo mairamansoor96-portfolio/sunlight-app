@@ -114,11 +114,11 @@ This keeps white at white (the eye adapts to the brightest thing on screen) and 
 **Colour pairs**
 
 - **Automatic:** find the screenshot's most common colours, keep pairs that sit next to each other often (text on its background, a button label on its fill), and report the lowest-contrast ones first. Near-identical neighbours below 1.25:1, such as hairline dividers, are skipped.
-- **Manual:** tap a text colour, then a background colour, in the screenshot. There is also a keyboard-operable colour input for each, so the feature passes Sunlight's own tests.
+- **Manual** ("Test a specific bit of text"): tap the text, then its background, in the screenshot. There is also a keyboard-operable colour input for each, so the feature passes Sunlight's own tests.
 
 **Thresholds:** 4.5:1 is shown as the pass line, because we can't tell body text from large text in a screenshot. The report notes that large text (24 px, or 18.66 px bold) and interface components need 3:1.
 
-**Report**, in plain language. For example: "4 of 6 colour pairs pass indoors. In direct sun on a mid-range phone, none do." Each pair shows its ratio indoors and under all three light presets for the chosen phone, with pass or fail written in words, not shown by colour alone.
+**Report**, titled "Can people still read it outside?", in plain language. It explains the score once ("how much the text stands out: 4.5 or higher is readable"), then summarises: "4 of 12 text colour combinations are readable indoors. In direct sun on a mid-range phone, none are." It names the hardest to read. Each combination is described in words ("light grey text on off-white", with hex codes as small print) and scored indoors and under all three lights for the chosen phone, with Readable or Too faint written in words, not shown by colour alone. "Show where" dims the screenshot except where that combination is used (hover or focus previews it). Anti-aliased edges of other text in the same colours can light up too.
 
 **Sources** (shown in the product)
 

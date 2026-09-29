@@ -10,6 +10,8 @@
  *    few anti-aliased pixels between them).
  * 4. Keep pairs that meet often, skip near-identical neighbours, and return the
  *    lowest contrast first.
+ * 5. Remember where each pair meets on a coarse grid, so the UI can show where
+ *    on the screen that combination is used.
  */
 
 import { contrastRatio, relativeLuminance } from "./simulations/color";
@@ -24,7 +26,21 @@ export interface ColourPair {
   indoor: number;
   /** How often the two colours meet; a rough measure of how much text uses this pair. */
   edges: number;
+  /** Where on the screenshot the pair appears. */
+  where: PairLocation;
 }
+
+/** Grid cells (row-major) where a pair meets, on a grid WHERE_COLS wide with square cells. */
+export interface PairLocation {
+  cols: number;
+  rows: number;
+  cells: number[];
+}
+
+/** Columns in the location grid; about 16 px per cell on a 390 pt screen. */
+export const WHERE_COLS = 24;
+/** Meetings a cell needs before it counts, so stray pixels don't light it up. */
+const MIN_CELL_HITS = 2;
 
 const BUCKETS = 1 << 15;
 /** Most colours worth considering. */
@@ -77,9 +93,21 @@ export function findPairs(img: PixelBuffer, maxPairs = 12): ColourPair[] {
   top.forEach((k, i) => (rank[k] = i));
   const t = top.length;
   const edges = new Uint32Array(t * t);
+  const cellSize = w / WHERE_COLS;
+  const gridRows = Math.max(1, Math.ceil(h / cellSize));
+  const gridCells = WHERE_COLS * gridRows;
+  // Only pairs that end up in the report need their grid, so allocate lazily.
+  const hits = new Map<number, Uint16Array>();
+  const hit = (pair: number, x: number, y: number) => {
+    let grid = hits.get(pair);
+    if (!grid) hits.set(pair, (grid = new Uint16Array(gridCells)));
+    const c = Math.min(gridRows - 1, Math.floor(y / cellSize)) * WHERE_COLS + Math.min(WHERE_COLS - 1, Math.floor(x / cellSize));
+    if (grid[c] < 65535) grid[c]++;
+  };
 
   // Walk a line of pixels; count a meeting whenever a top colour follows a different one closely.
-  const walk = (start: number, step: number, length: number) => {
+  // `fixed` is the row (horizontal walk) or column (vertical walk) being walked.
+  const walk = (start: number, step: number, length: number, fixed: number, horizontal: boolean) => {
     let last = -1;
     let lastAt = -MAX_GAP - 2;
     for (let j = 0; j < length; j++) {
@@ -88,13 +116,15 @@ export function findPairs(img: PixelBuffer, maxPairs = 12): ColourPair[] {
       if (last >= 0 && r !== last && j - lastAt <= MAX_GAP + 1) {
         const [a, b] = r < last ? [r, last] : [last, r];
         edges[a * t + b]++;
+        if (horizontal) hit(a * t + b, j, fixed);
+        else hit(a * t + b, fixed, j);
       }
       last = r;
       lastAt = j;
     }
   };
-  for (let y = 0; y < h; y++) walk(y * w, 1, w);
-  for (let x = 0; x < w; x++) walk(x, w, h);
+  for (let y = 0; y < h; y++) walk(y * w, 1, w, y, true);
+  for (let x = 0; x < w; x++) walk(x, w, h, x, false);
 
   const mean = (k: number): RGB => [
     Math.round(sum[k * 3] / count[k]),
@@ -114,7 +144,10 @@ export function findPairs(img: PixelBuffer, maxPairs = 12): ColourPair[] {
       const text = mean(fg);
       const indoor = pairContrast(text, background);
       if (indoor < MIN_PAIR_CONTRAST) continue;
-      pairs.push({ text, background, indoor, edges: e });
+      const grid = hits.get(a * t + b)!;
+      const cells: number[] = [];
+      for (let c = 0; c < gridCells; c++) if (grid[c] >= MIN_CELL_HITS) cells.push(c);
+      pairs.push({ text, background, indoor, edges: e, where: { cols: WHERE_COLS, rows: gridRows, cells } });
     }
   }
 

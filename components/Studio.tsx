@@ -10,7 +10,8 @@ import { ToneStrip } from "./ToneStrip";
 import { TrustTag } from "./TrustMark";
 import { UploadZone } from "./UploadZone";
 import { ImageLoadError, loadImageFile } from "@/lib/loadImage";
-import { findPairs, type RGB } from "@/lib/contrastPairs";
+import { describePair } from "@/lib/colourNames";
+import { findPairs, type ColourPair, type RGB } from "@/lib/contrastPairs";
 import {
   CONDITIONS,
   HONESTY,
@@ -44,6 +45,10 @@ export function Studio() {
   const [customPair, setCustomPair] = useState<{ text: RGB; background: RGB } | null>(null);
   const [pickStep, setPickStep] = useState<PickStep>(null);
   const [pickedText, setPickedText] = useState<RGB | null>(null);
+  // Where a colour combination appears: a hover/focus preview, or pinned with "Show where".
+  const [preview, setPreview] = useState<ColourPair | null>(null);
+  const [shown, setShown] = useState<ColourPair | null>(null);
+  const [reveal, setReveal] = useState(0);
 
   const condition = getCondition(conditionId);
   const hasControls = Boolean(condition.controls?.length);
@@ -84,6 +89,18 @@ export function Studio() {
     [source, pickStep, pickedText],
   );
 
+  const showPair = useCallback((pair: ColourPair | null) => {
+    setShown(pair);
+    if (pair) setReveal((n) => n + 1);
+  }, []);
+
+  useEffect(() => {
+    if (!shown) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setShown(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [shown]);
+
   useEffect(() => {
     if (!pickStep) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPickStep(null);
@@ -98,6 +115,8 @@ export function Studio() {
       setResult(null);
       setCustomPair(null);
       setPickStep(null);
+      setShown(null);
+      setPreview(null);
       setSource(img);
       setFileName(`${file.name}#${Date.now()}`);
     } catch (e) {
@@ -144,6 +163,8 @@ export function Studio() {
               wipeKey={result?.conditionId}
               picking={pickStep !== null}
               onPick={onPick}
+              highlight={conditionId === "sunlight" ? (preview ?? shown)?.where : null}
+              reveal={reveal}
               before={<PixelCanvas image={source} label="Your screenshot, as uploaded" />}
               after={
                 <PixelCanvas
@@ -161,6 +182,16 @@ export function Studio() {
                     ? "Going outside…"
                     : "Drag the divider, or focus it and use the arrow keys."}
             </p>
+            {conditionId === "sunlight" && shown && (
+              <p className="showing">
+                <span>
+                  Showing where <strong>{describePair(shown.text, shown.background).toLowerCase()}</strong> is used.
+                </span>
+                <button type="button" className="btn btn--line" onClick={() => setShown(null)}>
+                  Hide
+                </button>
+              </p>
+            )}
             {conditionId === "sunlight" && (
               <ContrastReport
                 pairs={pairs}
@@ -169,6 +200,9 @@ export function Studio() {
                 {...sunlightSettings(params)}
                 picking={pickStep !== null}
                 onPick={() => setPickStep((step) => (step ? null : "text"))}
+                shown={shown}
+                onPreview={setPreview}
+                onShow={showPair}
               />
             )}
             <ToneStrip stack={stack} conditionName={condition.name} />
