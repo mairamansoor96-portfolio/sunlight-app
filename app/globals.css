@@ -356,6 +356,33 @@ kbd {
   cursor: pointer;
 }
 
+.tour-toggle {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--shade);
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tour-toggle:hover {
+  border-color: var(--shade);
+}
+
+.tour-toggle path {
+  fill: var(--shade);
+}
+
 .live-hero__readout {
   display: flex;
   flex-wrap: wrap;

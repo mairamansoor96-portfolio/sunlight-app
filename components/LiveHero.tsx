@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { TrustTag } from "./TrustMark";
 import { CONDITIONS, type Condition, type FilterStep } from "@/lib/simulations";
 
@@ -15,11 +15,19 @@ const LINES = [
 const MONITOR = "monitor";
 /** The hero shows every condition at full strength. */
 const HERO_STRENGTH = 1;
-/** Played once, a moment after load, unless the visitor has already chosen or prefers reduced motion. */
-const AUTOPLAY = { id: "blurred-vision", delayMs: 1800 };
+/**
+ * The tour: a moment after load the headline cycles through every condition,
+ * holding each one. It has a pause button (WCAG 2.2.2), stops for good when the
+ * visitor picks a condition, pauses off-screen, and never starts on its own
+ * for people who prefer reduced motion.
+ */
+const TOUR = { startMs: 1500, holdMs: 3200 };
 const WIPE_MS = 700;
 
 const HERO_CONDITIONS = CONDITIONS.filter((c) => c.filter);
+const SEQUENCE = [MONITOR, ...HERO_CONDITIONS.map((c) => c.id)];
+const nextInTour = (id: string) => SEQUENCE[(SEQUENCE.indexOf(id) + 1) % SEQUENCE.length];
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const shortName = (c: Condition) => c.name.split(/[,(]/)[0].trim();
 const stepsFor = (id: string): FilterStep[] =>
   id === MONITOR ? [] : (HERO_CONDITIONS.find((c) => c.id === id)?.filter?.(HERO_STRENGTH) ?? []);
@@ -84,25 +92,59 @@ export function LiveHero() {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const [active, setActive] = useState(MONITOR);
   const [previous, setPrevious] = useState(MONITOR);
+  const [playing, setPlaying] = useState(false);
+  const [onScreen, setOnScreen] = useState(true);
+  const activeRef = useRef(active);
   const touched = useRef(false);
+  const stage = useRef<HTMLDivElement>(null);
   const overlay = useRef<HTMLDivElement>(null);
   const firstRender = useRef(true);
 
-  const choose = (id: string) => {
-    setPrevious(active);
-    setActive(id);
-  };
-
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setTimeout(() => {
-      if (!touched.current) {
-        setPrevious(MONITOR);
-        setActive(AUTOPLAY.id);
-      }
-    }, AUTOPLAY.delayMs);
-    return () => window.clearTimeout(timer);
+    activeRef.current = active;
+  }, [active]);
+
+  const choose = useCallback((id: string) => {
+    setPrevious(activeRef.current);
+    setActive(id);
   }, []);
+
+  // Start the tour shortly after load.
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const timer = window.setTimeout(() => {
+      if (touched.current) return;
+      setPlaying(true);
+      choose(nextInTour(activeRef.current));
+    }, TOUR.startMs);
+    return () => window.clearTimeout(timer);
+  }, [choose]);
+
+  // Hold each condition, then move on. Restarts whenever the condition changes.
+  useEffect(() => {
+    if (!playing || !onScreen) return;
+    const timer = window.setTimeout(() => choose(nextInTour(activeRef.current)), TOUR.holdMs);
+    return () => window.clearTimeout(timer);
+  }, [playing, onScreen, active, choose]);
+
+  // Don't spend anyone's battery on a headline they've scrolled past.
+  useEffect(() => {
+    const el = stage.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const togglePlaying = () => {
+    touched.current = true;
+    if (playing) {
+      setPlaying(false);
+    } else {
+      setPlaying(true);
+      choose(nextInTour(activeRef.current));
+    }
+  };
 
   // The new condition wipes across from the left, over the previous one.
   useEffect(() => {
@@ -110,7 +152,7 @@ export function LiveHero() {
       firstRender.current = false;
       return;
     }
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
     overlay.current?.animate([{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], {
       duration: WIPE_MS,
       easing: "cubic-bezier(0.6, 0, 0.2, 1)",
@@ -136,7 +178,7 @@ export function LiveHero() {
         </filter>
       </svg>
 
-      <div className="live-hero__stage" aria-hidden="true">
+      <div ref={stage} className="live-hero__stage" aria-hidden="true">
         <div className="live-hero__layer">
           <Chart filterId={previousSteps.length ? previousFilter : undefined} />
         </div>
@@ -159,6 +201,7 @@ export function LiveHero() {
                     checked={o.id === active}
                     onChange={() => {
                       touched.current = true;
+                      setPlaying(false);
                       choose(o.id);
                     }}
                     className="lens__input"
@@ -170,7 +213,20 @@ export function LiveHero() {
           </div>
         </fieldset>
 
-        <p className="live-hero__readout" aria-live="polite">
+        <button
+          type="button"
+          className="tour-toggle"
+          onClick={togglePlaying}
+          aria-label={playing ? "Pause tour of the headline" : "Play tour of the headline"}
+        >
+          <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+            {playing ? <path d="M2 1h3v10H2zM7 1h3v10H7z" /> : <path d="M2 1l9 5-9 5z" />}
+          </svg>
+          {playing ? "Pause tour" : "Play tour"}
+        </button>
+
+        {/* Quiet while touring, so screen readers aren't interrupted every few seconds. */}
+        <p className="live-hero__readout" aria-live={playing ? "off" : "polite"}>
           {condition ? (
             <>
               <span className="reading">

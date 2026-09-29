@@ -120,12 +120,12 @@ Agreed 29 Sep 2026 from the specimen page. Sunlight looks like a **field instrum
 
 **Signature elements**
 
-- **Live eye-chart hero:** the headline set as a Snellen chart, lines shrinking, acuity (20/200 … 20/20) in the margin, with a duochrome (red/green) test bar. Visitors run the headline through any condition, using the same model as the pixel code (as SVG filters). It plays blurred vision once on load, and never under reduced motion. The duochrome colours are content, like a screenshot, not part of the interface palette.
+- **Live eye-chart hero:** the headline set as a Snellen chart, lines shrinking, acuity (20/200 … 20/20) in the margin, with a duochrome (red/green) test bar. Visitors run the headline through any condition, using the same model as the pixel code (as SVG filters). A moment after load it tours every condition on its own (about 3 seconds each), with a Pause button (WCAG 2.2.2). It stops when the visitor picks a condition, pauses off-screen, stays quiet for screen readers while touring, and never starts on its own under reduced motion. The duochrome colours are content, like a screenshot, not part of the interface palette.
 - **Trust marks:** ● Measured, ◐ Modelled, ○ Illustrative, always with the word.
 - **Tone strip:** eleven greys, L* 0–100, run through the current condition, with merged steps hatched in Signal.
 - **Readouts:** each side of the comparison states what it shows in real units.
 
-**Motion:** one moment only. Changing condition wipes the processed side in like a shutter. None under reduced motion.
+**Motion:** one idea only, the shutter wipe: changing condition wipes it in from one side, in the hero tour and in the comparison. No wipes under reduced motion.
 
 **Voice in the UI:** one plain fact first, then at most one dry line. The joke never replaces the fact.
 

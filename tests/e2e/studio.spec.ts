@@ -90,9 +90,24 @@ test.describe("live hero", () => {
     await expect(page.locator(".live-hero__readout")).toContainText("As designed");
   });
 
-  test("plays the blur once on load", async ({ page }) => {
+  test("tours every condition on its own, and pauses", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByTestId("hero-overlay")).toHaveAttribute("data-condition", "blurred-vision", { timeout: 5000 });
+    const overlay = page.getByTestId("hero-overlay");
+    await expect(overlay).toHaveAttribute("data-condition", "dim-room", { timeout: 4000 });
+    await expect(overlay).toHaveAttribute("data-condition", "blurred-vision", { timeout: 5000 });
+
+    await page.getByRole("button", { name: /Pause tour/ }).click();
+    const held = await overlay.getAttribute("data-condition");
+    await page.waitForTimeout(4000);
+    await expect(overlay).toHaveAttribute("data-condition", held!);
+    await expect(page.getByRole("button", { name: /Play tour/ })).toBeVisible();
+  });
+
+  test("stops touring when the visitor picks a condition", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(".live-hero").getByRole("radio", { name: "Deuteranopia" }).check();
+    await page.waitForTimeout(4500);
+    await expect(page.getByTestId("hero-overlay")).toHaveAttribute("data-condition", "deuteranopia");
   });
 
   test("stays still for people who prefer reduced motion", async ({ page }) => {
@@ -100,5 +115,6 @@ test.describe("live hero", () => {
     await page.goto("/");
     await page.waitForTimeout(2500);
     await expect(page.getByTestId("hero-overlay")).toHaveAttribute("data-condition", "monitor");
+    await expect(page.getByRole("button", { name: /Play tour/ })).toBeVisible();
   });
 });
