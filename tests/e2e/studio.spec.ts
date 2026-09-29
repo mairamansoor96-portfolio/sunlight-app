@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 
 const SAMPLE = path.join(__dirname, "../../public/sample-screenshot.png");
@@ -64,5 +65,15 @@ test("rejects files that aren't screenshots", async ({ page }) => {
     mimeType: "text/plain",
     buffer: Buffer.from("hello"),
   });
-  await expect(page.locator(".upload__error[role=alert]")).toContainText("isn't a PNG, JPEG or WebP");
+  await expect(page.locator(".upload__error[role=alert]")).toContainText("isn't an image");
+});
+
+test("opens images that arrive without a file type, as phone galleries often send them", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Choose a screenshot").setInputFiles({
+    name: "IMG_0412",
+    mimeType: "",
+    buffer: readFileSync(SAMPLE),
+  });
+  await expect(page.getByRole("img", { name: /simulated/ })).toBeVisible();
 });

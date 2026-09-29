@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type DragEvent } from "react";
-import { ACCEPTED_TYPES } from "@/lib/loadImage";
+import { ACCEPT } from "@/lib/loadImage";
 
 interface Props {
   onFile: (file: File) => void;
@@ -60,7 +60,7 @@ export function UploadZone({ onFile, onSample, error, compact }: Props) {
           ref={input}
           className="visually-hidden"
           type="file"
-          accept={ACCEPTED_TYPES.join(",")}
+          accept={ACCEPT}
           aria-describedby={error ? errorId : undefined}
           onChange={(e) => {
             const file = e.target.files?.[0];
