@@ -40,7 +40,7 @@ export function Studio() {
 
   const onSample = useCallback(async () => {
     try {
-      const res = await fetch("/sample-screenshot.png");
+      const res = await fetch("sample-screenshot.png");
       const blob = await res.blob();
       await onFile(new File([blob], "sample-screenshot.png", { type: "image/png" }));
     } catch {

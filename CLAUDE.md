@@ -28,6 +28,7 @@ npm run dev          # local dev server
 npm run build        # static export to out/
 npm run lint && npm run typecheck && npm test   # run before every commit
 npm run test:e2e     # Playwright against out/ (build first)
+npm run preview      # one-file preview in preview/ (published as a private claude.ai Artifact)
 ```
 
 In Claude Code cloud sessions, Chromium is preinstalled. Prefix the Playwright commands (`test:e2e`, `sample`) with `CHROMIUM_PATH=/opt/pw-browsers/chromium` and don't run `playwright install`.
