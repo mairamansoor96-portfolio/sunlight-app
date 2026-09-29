@@ -28,6 +28,10 @@ Sunlight shows designers their interfaces in the conditions real users live in: 
 - `app/fonts/`: self-hosted woff2 files and their licences. `npm run preview` embeds them.
 - `scripts/`: `sample-screen.html` is the source of `public/sample-screenshot.png`. Regenerate it with `npm run sample`.
 
+## Deployment
+
+Live at https://sunlight-gold.vercel.app. Vercel builds the static export from `main` on every merge; other branches get preview URLs. There is no Vercel config in the repo; the Next.js preset handles `output: "export"`. Keep the app deployable as plain static files.
+
 ## Commands
 
 ```bash

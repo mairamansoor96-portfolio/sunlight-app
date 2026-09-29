@@ -10,6 +10,8 @@ The framing is deliberate: **accessibility is about circumstances, not only disa
 
 It runs entirely in the browser with image filters and colour maths. No backend, no storage, no running cost.
 
+**Live:** https://sunlight-gold.vercel.app, a static export deployed on Vercel. Every merge to `main` redeploys it.
+
 ## Conditions library
 
 Conditions are grouped into four families. The grouping itself argues that accessibility is situational.

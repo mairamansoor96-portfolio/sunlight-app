@@ -6,6 +6,8 @@ Sunlight shows designers their interfaces in the conditions real users live in: 
 
 It runs entirely in the browser. Your screenshot never leaves your device.
 
+**Live:** [sunlight-gold.vercel.app](https://sunlight-gold.vercel.app), deployed on Vercel from `main`.
+
 - Design spec: [SPEC.md](SPEC.md)
 - Build plan and progress: [PLAN.md](PLAN.md)
 
