@@ -303,6 +303,7 @@ export function Studio() {
                 </div>
               </div>
             </div>
+            <div className="panel__base" aria-hidden="true" />
           </section>
         </div>
       )}

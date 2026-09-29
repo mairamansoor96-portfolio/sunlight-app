@@ -139,6 +139,18 @@ test.describe("sunlight", () => {
   });
 });
 
+test("the control panel stays in view while the page scrolls (wide screens)", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "The panel only sits beside the image on wide screens.");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Use a sample screen" }).click();
+  await page.locator(".studio__controls").getByRole("radio", { name: /Direct sunlight glare/ }).check();
+  await expect(page.locator(".stage__status")).toHaveText(/Drag the divider/);
+  await page.evaluate(() => window.scrollTo(0, 1600));
+  await expect.poll(async () => Math.round((await page.locator(".panel").boundingBox())!.y)).toBe(16);
+  const box = (await page.locator(".panel").boundingBox())!;
+  expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+});
+
 test.describe("live hero", () => {
   test("tours every condition on its own, two seconds each", async ({ page }) => {
     await page.goto("/");

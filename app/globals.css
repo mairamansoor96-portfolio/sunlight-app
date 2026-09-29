@@ -561,10 +561,6 @@ kbd {
   .studio__workspace {
     grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
   }
-  .studio__controls {
-    position: sticky;
-    top: 16px;
-  }
 }
 
 .studio__stage {
@@ -684,6 +680,39 @@ kbd {
 .panel__body {
   display: grid;
   padding: 4px 20px 26px;
+}
+
+/* A plain base strip under the sections, so the bottom screws never sit over content. */
+.panel__base {
+  flex: none;
+  height: 24px;
+  border-top: 1px solid var(--shade);
+}
+
+.panel__body {
+  padding-bottom: 12px;
+}
+
+/* Wide screens: the panel stays in view while the page scrolls. It is capped at
+   the viewport's height so nothing is out of reach: the nameplate stays put and
+   the sections scroll inside it. Declared after .panel so sticky wins. */
+@media (min-width: 900px) {
+  .panel.studio__controls {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 32px);
+  }
+
+  .panel.studio__controls .panel__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule-strong) transparent;
+  }
 }
 
 .panel__section {
