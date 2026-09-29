@@ -1,0 +1,1611 @@
+/*
+ * Sunlight visual language: a field instrument for light (SPEC.md → Visual language).
+ * Neutral around the image, warmth from the sun, readings not decoration.
+ * Every text/background pair here is checked for WCAG AA in tests/unit/theme.test.ts.
+ * If you add a colour token, add its pairs to that test.
+ */
+
+@font-face {
+  font-family: "Optician Sans";
+  src: url("./fonts/optician-sans.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./fonts/atkinson-hyperlegible-next.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  src: url("./fonts/atkinson-hyperlegible-mono.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+:root {
+  /* Colour: shade and sun. Neutral, so the interface never tints a screenshot. */
+  --paper: #f6f6f3;
+  --white: #ffffff;
+  --shade: #161c2b;
+  --shade-2: #4a5266;
+  --rule: #d3d6dc;
+  --rule-strong: #7b8294;
+  --sun: #ffc400;
+  --signal: #c4231a;
+  /* Duochrome test target (content, not interface). Black letters on both reach 4.5:1. */
+  --duo-red: #e0442f;
+  --duo-green: #3aa55a;
+
+  /* Type: eye chart for display, hyperlegible for reading, mono for readings. */
+  --eye: "Optician Sans", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --step--1: 0.8125rem;
+  --step-0: 1rem;
+  --step-1: 1.1875rem;
+  --step-2: 1.5rem;
+
+  --radius: 2px;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--shade);
+  font-family: var(--body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--shade);
+  outline-offset: 2px;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--shade);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  padding: 0 0.35em;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 10;
+  padding: 0.6rem 1rem;
+  background: var(--shade);
+  color: var(--white);
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Section labels and values: the instrument's own voice. */
+.label {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--shade-2);
+}
+
+.reading {
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+  color: var(--shade-2);
+}
+
+/* ---------- Page, masthead ---------- */
+
+.page {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 16px;
+  padding-block: 20px 0;
+}
+
+@media (min-width: 720px) {
+  .page {
+    padding-inline: 40px;
+  }
+}
+
+.mast {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--shade);
+}
+
+.mast__top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px 24px;
+}
+
+.mast__quip {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  color: var(--shade-2);
+}
+
+.mast__quip strong {
+  color: var(--shade);
+}
+
+/* ---------- Light meter: the header's instrument ----------
+   A log scale of real light levels with a sun needle that follows the hero. */
+
+.meter {
+  display: grid;
+  gap: 6px;
+}
+
+.meter__readout {
+  margin: 0;
+  justify-self: end;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The scale is inset by the needle's radius so 1 and 100,000 lux sit on its ends. */
+.meter__scale {
+  position: relative;
+  height: 30px;
+  margin-inline: 8px;
+  border-top: 1.5px solid var(--shade);
+}
+
+.meter__tick {
+  position: absolute;
+  top: 0;
+  width: 1.5px;
+  height: 8px;
+  margin-left: -0.75px;
+  background: var(--shade);
+}
+
+.meter__landmark {
+  position: absolute;
+  top: 12px;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  color: var(--shade-2);
+  white-space: nowrap;
+}
+
+.meter__landmark--start {
+  transform: none;
+  margin-left: -8px;
+}
+
+.meter__landmark--end {
+  transform: translateX(-100%);
+  margin-left: 8px;
+}
+
+/* The needle is the sun disc riding the scale, with a hairline down to it. */
+.meter__needle {
+  position: absolute;
+  top: -9px;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border: 1.5px solid var(--shade);
+  border-radius: 50%;
+  background: var(--sun);
+  transition: left 600ms cubic-bezier(0.6, 0, 0.2, 1);
+}
+
+@media (max-width: 520px) {
+  .meter__landmark {
+    display: none;
+  }
+  .meter__scale {
+    height: 12px;
+  }
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--eye);
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wordmark__disc {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--sun);
+  border: 1.5px solid var(--shade);
+}
+
+/* ---------- Hero: set as an eye chart ---------- */
+
+.hero {
+  display: grid;
+  gap: 24px;
+  padding-block: 40px 36px;
+}
+
+/* The live hero stacks two copies of the chart: the previous condition
+   underneath, the new one wiping in on top. Both carry the paper colour so
+   a condition that dims the screen dims the paper too. */
+.live-hero {
+  display: grid;
+  gap: 18px;
+}
+
+.live-hero__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.live-hero__stage {
+  display: grid;
+}
+
+.live-hero__layer {
+  grid-area: 1 / 1;
+  background: var(--paper);
+}
+
+.chart {
+  display: grid;
+  background: var(--paper);
+}
+
+.chart__line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 16px;
+  padding-block: 0.12em 0.08em;
+  border-bottom: 1px solid var(--rule);
+}
+
+.chart__line--4 {
+  border-bottom: 2px solid var(--shade);
+}
+
+.chart__text {
+  min-width: 0;
+  font-family: var(--eye);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.chart__line--1 .chart__text {
+  font-size: clamp(2.4rem, 7.5vw, 5.25rem);
+}
+.chart__line--2 .chart__text {
+  font-size: clamp(1.7rem, 5vw, 3.5rem);
+}
+.chart__line--3 .chart__text {
+  font-size: clamp(1.25rem, 3.4vw, 2.35rem);
+}
+.chart__line--4 .chart__text {
+  font-size: clamp(0.95rem, 1.9vw, 1.3rem);
+}
+
+.chart__acuity {
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  color: var(--shade-2);
+  white-space: nowrap;
+}
+
+/* Duochrome: the red/green test from a real eye exam. Content, like a screenshot,
+   so its colours sit outside the interface palette. */
+.chart__line--duo {
+  align-items: center;
+  padding-block: 10px 0;
+  border-bottom: 0;
+}
+
+.duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 22rem;
+  border: 1px solid var(--shade);
+}
+
+.duo__half {
+  padding: 2px 0;
+  font-family: var(--eye);
+  font-size: 0.8125rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+  color: #000;
+}
+
+.duo__half--red {
+  background: var(--duo-red);
+}
+
+.duo__half--green {
+  background: var(--duo-green);
+}
+
+/* One quiet line: the tour control and what's showing. */
+.live-hero__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.tour-toggle {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--shade);
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tour-toggle:hover {
+  border-color: var(--shade);
+}
+
+.tour-toggle path {
+  fill: var(--shade);
+}
+
+.live-hero__readout {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  color: var(--shade-2);
+}
+
+.live-hero__readout strong {
+  color: var(--shade);
+}
+
+.hero__intro {
+  display: grid;
+  gap: 8px;
+  max-width: 40rem;
+}
+
+.hero__line {
+  font-size: var(--step-2);
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.hero__lede {
+  color: var(--shade-2);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 2px solid var(--shade);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--shade);
+  font: 700 var(--step-0) / 1.2 var(--body);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn--sun {
+  background: var(--sun);
+}
+.btn--sun:hover {
+  background: color-mix(in srgb, var(--sun) 80%, var(--white));
+}
+
+.btn--line {
+  border-width: 1.5px;
+  border-color: var(--rule-strong);
+}
+.btn--line:hover {
+  border-color: var(--shade);
+}
+
+/* The file input is visually hidden; show its focus on the visible label. */
+.upload label:has(+ input[type="file"]:focus-visible) {
+  outline: 3px solid var(--shade);
+  outline-offset: 2px;
+}
+
+/* ---------- Upload ---------- */
+
+.upload {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+  padding: 24px;
+  border: 1.5px dashed var(--rule-strong);
+  background: var(--white);
+}
+
+.upload--over {
+  border-style: solid;
+  border-color: var(--shade);
+  outline: 4px solid var(--sun);
+}
+
+.upload--compact {
+  padding: 0 0 18px;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+}
+
+.upload__lead {
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.upload__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.upload__error {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: baseline;
+  max-width: 42rem;
+  padding: 10px 12px;
+  border: 1.5px solid var(--signal);
+  background: var(--white);
+}
+
+.upload__error-code {
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+/* ---------- Workspace ---------- */
+
+.studio {
+  display: grid;
+  gap: 28px;
+}
+
+.studio__workspace {
+  display: grid;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  /* Stage first in the DOM (see it before tweaking it on a phone); controls
+     sit to the right on wide screens, like an instrument's settings panel. */
+  .studio__workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  }
+}
+
+.studio__stage {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.studio__controls {
+  min-width: 0;
+}
+
+/* ---------- Control panel: the faceplate of a field instrument ----------
+   A heavy enclosure, a nameplate with a status lamp, numbered sections in the
+   order you use them, and hardware-style controls. Rules, not shadows. */
+
+.panel {
+  position: relative;
+  border: 2px solid var(--shade);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.panel__screw {
+  position: absolute;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+/* The slot, turned a different way on each screw, as they would be. */
+.panel__screw::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 1px;
+  right: 1px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: var(--shade-2);
+  transform: rotate(var(--turn, 45deg));
+}
+
+.panel__screw--tl {
+  top: 7px;
+  left: 7px;
+}
+.panel__screw--tr {
+  top: 7px;
+  right: 7px;
+  --turn: -20deg;
+}
+.panel__screw--bl {
+  bottom: 7px;
+  left: 7px;
+  --turn: 80deg;
+}
+.panel__screw--br {
+  bottom: 7px;
+  right: 7px;
+  --turn: 10deg;
+}
+
+.panel__plate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 12px 28px 11px;
+  background: var(--shade);
+  color: var(--white);
+}
+
+.panel__name {
+  margin: 0;
+  font-family: var(--eye);
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.panel__model {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--rule);
+}
+
+.panel__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rule);
+}
+
+.panel__lamp {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--rule-strong);
+  background: var(--shade);
+}
+
+.panel__lamp.is-lit {
+  border-color: var(--sun);
+  background: var(--sun);
+}
+
+.panel__body {
+  display: grid;
+  padding: 4px 20px 26px;
+}
+
+/* A plain base strip under the sections, so the bottom screws never sit over content. */
+.panel__base {
+  flex: none;
+  height: 24px;
+  border-top: 1px solid var(--shade);
+}
+
+.panel__body {
+  padding-bottom: 12px;
+}
+
+/* Wide screens: the panel stays in view while the page scrolls. It is capped at
+   the viewport's height so nothing is out of reach: the nameplate stays put and
+   the sections scroll inside it. Declared after .panel so sticky wins. */
+@media (min-width: 900px) {
+  .panel.studio__controls {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 32px);
+  }
+
+  .panel.studio__controls .panel__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule-strong) transparent;
+  }
+}
+
+.panel__section {
+  display: grid;
+  gap: 12px;
+  padding-block: 18px;
+}
+
+.panel__section + .panel__section {
+  border-top: 1px solid var(--shade);
+}
+
+/* Engraved legend: a boxed section number, then the label. */
+.panel__legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.panel__num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 4px;
+  border: 1.5px solid var(--shade);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel__readout {
+  min-width: 3.5em;
+  padding: 1px 6px;
+  border: 1.5px solid var(--shade);
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* The section rule already closes the list; avoid a doubled line. */
+.panel .family:last-child .row:last-child {
+  border-bottom: 0;
+}
+
+.panel .method {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.stage__status {
+  text-align: center;
+}
+
+/* ---------- Trust marks ---------- */
+
+.mark {
+  display: block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+.mark circle {
+  fill: var(--white);
+  stroke: var(--shade);
+  stroke-width: 2.5;
+}
+.mark path {
+  fill: var(--shade);
+}
+.mark--measured circle {
+  fill: var(--shade);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- Condition picker: ruled rows with live thumbnails ---------- */
+
+.picker {
+  display: grid;
+  gap: 18px;
+}
+
+.family {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.family .label {
+  padding: 0 0 6px;
+}
+
+.family__rows {
+  border-top: 1px solid var(--shade);
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 22px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 10px 10px 0;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+}
+
+/* The real radio covers the whole row, transparent, so any tap on the row selects it. */
+.row__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.row:hover:not(.is-on) {
+  background: color-mix(in srgb, var(--white) 55%, var(--paper));
+}
+
+.row.is-on {
+  background: var(--white);
+}
+
+.row:has(input:focus-visible) {
+  outline: 3px solid var(--shade);
+  outline-offset: -3px;
+}
+
+.row__thumb {
+  display: block;
+  width: 40px;
+  min-height: 40px;
+  outline: 1px solid var(--rule-strong);
+  background: var(--white);
+}
+
+.row__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.row__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.row__name {
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.row__blurb {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.row__check {
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--white);
+}
+
+.row.is-on .row__check {
+  border: 2px solid var(--shade);
+  background: var(--sun);
+}
+
+/* ---------- Strength & method ---------- */
+
+.strength {
+  display: grid;
+  gap: 4px;
+}
+
+.strength__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.strength__label {
+  font-weight: 700;
+}
+
+/* Fader: a grooved track, a square sun cap, and tick marks every 10%. */
+.fader {
+  --cap: 18px;
+  display: grid;
+}
+
+.fader__input {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.fader__input:focus-visible {
+  outline: 3px solid var(--shade);
+  outline-offset: 2px;
+}
+
+.fader__input::-webkit-slider-runnable-track {
+  height: 8px;
+  border: 1.5px solid var(--shade);
+  background: var(--paper);
+}
+
+.fader__input::-moz-range-track {
+  height: 8px;
+  border: 1.5px solid var(--shade);
+  background: var(--paper);
+}
+
+.fader__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--cap);
+  height: 34px;
+  margin-top: -14.5px;
+  border: 2px solid var(--shade);
+  border-radius: var(--radius);
+  background: var(--sun) linear-gradient(var(--shade), var(--shade)) center / 2px 60% no-repeat;
+}
+
+.fader__input::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--cap);
+  height: 34px;
+  border: 2px solid var(--shade);
+  border-radius: var(--radius);
+  background: var(--sun) linear-gradient(var(--shade), var(--shade)) center / 2px 60% no-repeat;
+}
+
+/* Ticks line up with the cap's centre at 0%, 10% … 100%. */
+.fader__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-inline: calc(var(--cap) / 2 - 0.75px);
+  height: 8px;
+}
+
+.fader__ticks i {
+  width: 1.5px;
+  height: 5px;
+  background: var(--shade-2);
+}
+
+.fader__ticks i.is-major {
+  height: 8px;
+  background: var(--shade);
+}
+
+.method {
+  display: grid;
+  gap: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9375rem;
+}
+
+.method__meaning {
+  font-weight: 700;
+}
+
+.method__body {
+  color: var(--shade-2);
+}
+
+/* ---------- Preset controls ---------- */
+
+.presets {
+  display: grid;
+  gap: 14px;
+}
+
+.presets__group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.presets__group .label {
+  padding: 0 0 6px;
+}
+
+.segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Square segments; the real radio covers each one. */
+/* Push buttons: a deeper bottom edge reads as key travel; pressed keys sink 1 px. */
+.segment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1.5px solid var(--rule-strong);
+  border-bottom-width: 4px;
+  border-radius: var(--radius);
+  background: var(--white);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.segment:hover {
+  border-color: var(--shade);
+}
+
+.segment.is-on {
+  border: 2px solid var(--shade);
+  border-bottom-width: 3px;
+  background: var(--sun);
+  transform: translateY(1px);
+}
+
+.segment:has(input:focus-visible) {
+  outline: 3px solid var(--shade);
+  outline-offset: 2px;
+}
+
+.segment__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.method__assumptions {
+  line-height: 1.5;
+}
+
+.method__sources summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.method__sources ul {
+  margin: 6px 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 4px;
+}
+
+/* ---------- Contrast report ---------- */
+
+.report {
+  display: grid;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  min-width: 0;
+}
+
+.report__head {
+  display: grid;
+  gap: 6px;
+  max-width: 44rem;
+}
+
+.report__title {
+  margin: 0;
+  font-size: var(--step-2);
+  line-height: 1.2;
+}
+
+.report__explain {
+  color: var(--shade-2);
+}
+
+.report__explain strong {
+  color: var(--shade);
+}
+
+.report__summary {
+  display: grid;
+  gap: 6px;
+  max-width: 44rem;
+}
+
+.report__hardest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.show-where {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--shade);
+  font: 700 0.8125rem / 1 var(--body);
+  cursor: pointer;
+  justify-self: start;
+}
+
+.show-where:hover {
+  border-color: var(--shade);
+}
+
+.show-where[aria-pressed="true"] {
+  border: 2px solid var(--shade);
+  background: var(--sun);
+}
+
+.showing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  text-align: center;
+}
+
+.report__scroll {
+  overflow-x: auto;
+  border-top: 1px solid var(--shade);
+}
+
+.report__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.report__table th,
+.report__table td {
+  padding: 8px 10px 8px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.report__table thead th {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--shade-2);
+}
+
+.report__table .is-on {
+  background: var(--white);
+}
+
+.report__table thead .is-on {
+  color: var(--shade);
+  border-bottom: 2px solid var(--shade);
+}
+
+.report__table td {
+  padding-left: 8px;
+}
+
+.pair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pair__swatch {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 32px;
+  border: 1px solid var(--rule-strong);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.pair__words {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  white-space: normal;
+  min-width: 11rem;
+}
+
+.pair__name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.pair__hex {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--shade-2);
+}
+
+.report__table tr.is-shown th,
+.report__table tr.is-shown td {
+  background: var(--white);
+}
+
+.pair__own {
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--shade);
+}
+
+.score {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+
+.verdict {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.verdict--fail {
+  color: var(--signal);
+}
+
+.report__more {
+  justify-self: start;
+}
+
+.own-pair {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.own-pair {
+  display: grid;
+  gap: 8px;
+}
+
+.own-pair__title {
+  padding: 0 0 6px;
+  font-weight: 700;
+  font-size: var(--step-1);
+}
+
+.own-pair__help {
+  max-width: 44rem;
+  color: var(--shade-2);
+}
+
+.own-pair__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.own-pair__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.own-pair__field input[type="color"] {
+  width: 44px;
+  height: 44px;
+  padding: 2px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+}
+
+.report__assumptions,
+.report__note {
+  max-width: 44rem;
+  font-size: var(--step--1);
+}
+
+.report__note {
+  color: var(--shade-2);
+}
+
+/* ---------- Comparison ---------- */
+
+.compare {
+  display: grid;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* Readouts never widen the comparison: its width comes from the image alone. */
+.readouts {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  contain: inline-size;
+}
+
+.readout {
+  display: grid;
+  min-width: 0;
+}
+
+.readout--right {
+  text-align: right;
+}
+
+.readout__name {
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+/* Crop marks sit just outside the frame corners, like a calibration print. */
+.crop {
+  position: relative;
+  padding: 14px;
+}
+
+.crop > i {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 0 solid var(--shade);
+}
+.crop > i:nth-child(1) {
+  top: 0;
+  left: 0;
+  border-top-width: 1.5px;
+  border-left-width: 1.5px;
+}
+.crop > i:nth-child(2) {
+  top: 0;
+  right: 0;
+  border-top-width: 1.5px;
+  border-right-width: 1.5px;
+}
+.crop > i:nth-child(3) {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 1.5px;
+  border-left-width: 1.5px;
+}
+.crop > i:nth-child(4) {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 1.5px;
+  border-right-width: 1.5px;
+}
+
+.compare__frame {
+  position: relative;
+  max-width: 100%;
+  outline: 1px solid var(--shade);
+  background: var(--white);
+  cursor: ew-resize;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.compare__frame.is-picking {
+  cursor: crosshair;
+  outline: 3px dashed var(--shade);
+  outline-offset: 2px;
+}
+
+.compare__layer {
+  line-height: 0;
+}
+
+.compare__layer--after {
+  position: absolute;
+  inset: 0;
+}
+
+.pixel-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 76vh;
+  width: auto;
+  height: auto;
+}
+
+.compare__layer--after .pixel-canvas {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
+/* Shows where a colour combination is used: everything else dims. */
+.compare__spotlight {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.compare__spotlight-dim {
+  fill: var(--shade);
+  opacity: 0.6;
+}
+
+.compare__spotlight-edge {
+  fill: none;
+  stroke: var(--white);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.compare__divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--shade);
+}
+
+.compare__handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--shade);
+  border-radius: 50%;
+  background: var(--sun);
+  cursor: ew-resize;
+}
+
+.compare__handle path {
+  fill: none;
+  stroke: var(--shade);
+  stroke-width: 2.25;
+  stroke-linecap: square;
+}
+
+.compare__handle:focus-visible {
+  outline: 3px solid var(--shade);
+  outline-offset: 3px;
+}
+
+/* ---------- Tone strip ---------- */
+
+.tone {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.tone__grid {
+  display: grid;
+  grid-template-columns: 5.5rem repeat(11, minmax(0, 1fr));
+}
+
+.tone__rowlabel {
+  display: flex;
+  align-items: center;
+  padding-right: 8px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: var(--shade-2);
+}
+
+.tone__cell {
+  height: 36px;
+  border-block: 1px solid var(--shade);
+}
+.tone__cell:nth-child(12n + 2) {
+  border-left: 1px solid var(--shade);
+}
+.tone__cell:nth-child(12n) {
+  border-right: 1px solid var(--shade);
+}
+.tone__cell.is-merged {
+  background-image: repeating-linear-gradient(135deg, transparent 0 5px, var(--signal) 5px 7px);
+}
+
+.tone__axis {
+  padding-top: 4px;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--shade-2);
+}
+
+.tone__caption {
+  display: grid;
+  gap: 6px;
+  max-width: 44rem;
+}
+
+.tone__summary strong {
+  color: var(--signal);
+}
+
+.tone__key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--step--1);
+  color: var(--shade-2);
+}
+
+.tone__key i {
+  width: 22px;
+  height: 12px;
+  border: 1px solid var(--shade);
+  background-image: repeating-linear-gradient(135deg, transparent 0 5px, var(--signal) 5px 7px);
+}
+
+/* ---------- Limits & footer ---------- */
+
+.limits {
+  display: grid;
+  gap: 6px;
+  max-width: 44rem;
+  margin-top: 56px;
+  padding-top: 14px;
+  border-top: 1px solid var(--shade);
+}
+
+.limits p {
+  color: var(--shade-2);
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 56px;
+  padding-block: 14px 32px;
+  border-top: 1px solid var(--shade);
+}
+
+.foot p {
+  max-width: 44rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
