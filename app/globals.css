@@ -656,6 +656,240 @@ kbd {
   color: var(--shade-2);
 }
 
+/* ---------- Preset controls ---------- */
+
+.presets {
+  display: grid;
+  gap: 14px;
+}
+
+.presets__group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.presets__group .label {
+  padding: 0 0 6px;
+}
+
+.segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Square segments; the real radio covers each one. */
+.segment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--white);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.segment:hover {
+  border-color: var(--shade);
+}
+
+.segment.is-on {
+  border: 2px solid var(--shade);
+  background: var(--sun);
+}
+
+.segment:has(input:focus-visible) {
+  outline: 3px solid var(--shade);
+  outline-offset: 2px;
+}
+
+.segment__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.method__assumptions {
+  line-height: 1.5;
+}
+
+.method__sources summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.method__sources ul {
+  margin: 6px 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 4px;
+}
+
+/* ---------- Contrast report ---------- */
+
+.report {
+  display: grid;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  min-width: 0;
+}
+
+.report__summary {
+  max-width: 44rem;
+}
+
+.report__summary strong {
+  font-weight: 700;
+}
+
+.report__scroll {
+  overflow-x: auto;
+  border-top: 1px solid var(--shade);
+}
+
+.report__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.report__table th,
+.report__table td {
+  padding: 8px 10px 8px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.report__table thead th {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--shade-2);
+}
+
+.report__table .is-on {
+  background: var(--white);
+}
+
+.report__table thead .is-on {
+  color: var(--shade);
+  border-bottom: 2px solid var(--shade);
+}
+
+.report__table td {
+  padding-left: 8px;
+}
+
+.pair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pair__swatch {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 32px;
+  border: 1px solid var(--rule-strong);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.pair__hex {
+  display: grid;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--shade-2);
+}
+
+.pair__own {
+  font-family: var(--body);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--shade);
+}
+
+.ratio {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+}
+
+.verdict {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.verdict--fail {
+  color: var(--signal);
+}
+
+.report__more {
+  justify-self: start;
+}
+
+.own-pair {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.own-pair .label {
+  padding: 0 0 6px;
+}
+
+.own-pair__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.own-pair__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.own-pair__field input[type="color"] {
+  width: 44px;
+  height: 44px;
+  padding: 2px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+}
+
+.report__assumptions,
+.report__note {
+  max-width: 44rem;
+  font-size: var(--step--1);
+}
+
+.report__note {
+  color: var(--shade-2);
+}
+
 /* ---------- Comparison ---------- */
 
 .compare {
@@ -734,6 +968,12 @@ kbd {
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+}
+
+.compare__frame.is-picking {
+  cursor: crosshair;
+  outline: 3px dashed var(--shade);
+  outline-offset: 2px;
 }
 
 .compare__layer {

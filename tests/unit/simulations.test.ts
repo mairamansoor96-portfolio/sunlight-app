@@ -3,7 +3,7 @@ import { boxesForGauss, gaussianBlur, sigmaForWidth } from "@/lib/simulations/bl
 import { contrastRatio, linearToSrgb, relativeLuminance, srgbToLinear } from "@/lib/simulations/color";
 import { DEUTERANOPIA, applyLinearMatrix, mixMatrix } from "@/lib/simulations/colorBlindness";
 import { dim } from "@/lib/simulations/dimRoom";
-import { CONDITIONS, applyConditions } from "@/lib/simulations";
+import { CONDITIONS, applyConditions, getCondition } from "@/lib/simulations";
 import type { PixelBuffer } from "@/lib/simulations/types";
 
 function solid(w: number, h: number, [r, g, b, a = 255]: number[]): PixelBuffer {
@@ -128,7 +128,7 @@ describe("registry", () => {
       { id: "deuteranopia", strength: 1 },
       { id: "dim-room", strength: 1 },
     ]);
-    const manual = CONDITIONS[0].apply(CONDITIONS[2].apply(src, 1), 1);
+    const manual = getCondition("dim-room").apply(getCondition("deuteranopia").apply(src, 1), 1);
     expect(stacked.data).toEqual(manual.data);
   });
 });

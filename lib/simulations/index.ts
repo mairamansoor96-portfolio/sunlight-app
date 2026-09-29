@@ -6,11 +6,12 @@
 import { blurredVision } from "./blur";
 import { deuteranopia } from "./colorBlindness";
 import { dimRoom } from "./dimRoom";
-import type { AppliedCondition, Condition, Family, Honesty, PixelBuffer } from "./types";
+import { sunlight } from "./sunlight";
+import type { AppliedCondition, Condition, Family, Honesty, Params, PixelBuffer } from "./types";
 
-export type { AppliedCondition, Condition, Family, FilterStep, Honesty, PixelBuffer } from "./types";
+export type { AppliedCondition, Condition, ConditionControl, Family, FilterStep, Honesty, Params, PixelBuffer } from "./types";
 
-export const CONDITIONS: readonly Condition[] = [dimRoom, blurredVision, deuteranopia];
+export const CONDITIONS: readonly Condition[] = [sunlight, dimRoom, blurredVision, deuteranopia];
 
 export const FAMILIES: readonly { id: Family; name: string }[] = [
   { id: "environment", name: "Environment" },
@@ -36,5 +37,10 @@ export function getCondition(id: string): Condition {
  * of settings") are just stacks; a single condition is a stack of one.
  */
 export function applyConditions(src: PixelBuffer, stack: readonly AppliedCondition[]): PixelBuffer {
-  return stack.reduce((img, { id, strength }) => getCondition(id).apply(img, strength), src);
+  return stack.reduce((img, { id, strength, params }) => getCondition(id).apply(img, strength, params), src);
+}
+
+/** A condition's control values, with defaults filled in. */
+export function paramsWithDefaults(condition: Condition, params?: Params): Params {
+  return Object.fromEntries((condition.controls ?? []).map((c) => [c.id, params?.[c.id] ?? c.default]));
 }

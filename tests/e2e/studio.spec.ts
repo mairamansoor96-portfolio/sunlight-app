@@ -15,7 +15,7 @@ test("upload, switch conditions and wipe the slider", async ({ page }) => {
   await expect(page.locator(".stage__status")).toHaveText(/Drag the divider/);
 
   // Every condition shows an honesty label.
-  for (const name of ["Dim room, battery saver", "Blurred vision", "Deuteranopia (red–green)"]) {
+  for (const name of ["Direct sunlight glare", "Dim room, battery saver", "Blurred vision", "Deuteranopia (red–green)"]) {
     const option = page.locator(".studio__controls").getByRole("radio", { name: new RegExp(name.replace(/[()]/g, "\\$&")) });
     await option.check();
     await expect(after).toHaveAccessibleName(new RegExp(name.replace(/[()]/g, "\\$&")));
@@ -79,12 +79,61 @@ test("opens images that arrive without a file type, as phone galleries often sen
   await expect(page.getByRole("img", { name: /simulated/ })).toBeVisible();
 });
 
+test.describe("sunlight", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Use a sample screen" }).click();
+    await page.locator(".studio__controls").getByRole("radio", { name: /Direct sunlight glare/ }).check();
+    await expect(page.locator(".stage__status")).toHaveText(/Drag the divider/);
+  });
+
+  test("measures the screenshot's colour pairs and states the assumptions", async ({ page }) => {
+    const summary = page.locator(".report__summary");
+    await expect(summary).toContainText(/\d+ of \d+ colour pairs pass indoors\. In direct sun on a mid-range phone/);
+    await expect(page.locator(".report__table tbody tr")).toHaveCount(6);
+    await expect(page.locator(".report__assumptions")).toContainText("100,000 lux");
+    await expect(page.locator(".method .tag")).toHaveText("Measured");
+    await expect(page.locator(".method__sources")).toContainText("Sources");
+
+    await page.locator(".presets").getByRole("radio", { name: "Overcast" }).check();
+    await expect(summary).toContainText("On an overcast day on a mid-range phone");
+    await expect(page.locator(".compare .readout--right")).toContainText("Overcast");
+  });
+
+  test("checks a pair picked from the screenshot", async ({ page }) => {
+    await page.getByRole("button", { name: "Pick from screenshot" }).click();
+    await expect(page.locator(".stage__status")).toContainText("Tap the text colour");
+    const frame = page.getByTestId("compare-frame");
+    await expect(frame).toBeInViewport();
+    await page.waitForTimeout(600); // let the smooth scroll settle
+    const box = (await frame.boundingBox())!;
+    // The balance card: white text on near-black.
+    await page.mouse.click(box.x + box.width * 0.1, box.y + box.height * 0.26);
+    await expect(page.locator(".stage__status")).toContainText("background");
+    await page.mouse.click(box.x + box.width * 0.9, box.y + box.height * 0.2);
+    await expect(page.locator(".pair__own")).toHaveText("Your pair");
+  });
+
+  test("offers keyboard colour inputs as well as picking", async ({ page }) => {
+    // Set the value the way a browser's colour picker does, so React sees the change.
+    await page.getByLabel("Text", { exact: true }).evaluate((el: HTMLInputElement) => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(el, "#595959");
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect(page.locator(".pair__own")).toBeVisible();
+    await expect(page.locator(".report__table")).toContainText("#595959 on #FFFFFF");
+    await expect(page.locator(".report__table tbody tr").first()).toContainText("7.00:1");
+  });
+});
+
 test.describe("live hero", () => {
   test("tours every condition on its own, two seconds each", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Looks great on your monitor. Let’s go outside.");
     await expect(page.locator(".live-hero").getByRole("radio")).toHaveCount(0);
     const overlay = page.getByTestId("hero-overlay");
+    await expect(overlay).toHaveAttribute("data-condition", "sunlight", { timeout: 3000 });
+    await expect(page.locator(".live-hero__readout")).toContainText("R 0.41");
     await expect(overlay).toHaveAttribute("data-condition", "dim-room", { timeout: 3000 });
     await expect(overlay).toHaveAttribute("data-condition", "blurred-vision", { timeout: 3000 });
     await expect(overlay).toHaveAttribute("data-condition", "deuteranopia", { timeout: 3000 });
@@ -95,7 +144,7 @@ test.describe("live hero", () => {
   test("pauses and resumes", async ({ page }) => {
     await page.goto("/");
     const overlay = page.getByTestId("hero-overlay");
-    await expect(overlay).toHaveAttribute("data-condition", "dim-room", { timeout: 3000 });
+    await expect(overlay).toHaveAttribute("data-condition", "sunlight", { timeout: 3000 });
     await page.getByRole("button", { name: /Pause tour/ }).click();
     const held = await overlay.getAttribute("data-condition");
     await page.waitForTimeout(3000);

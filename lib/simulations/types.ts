@@ -30,7 +30,19 @@ export type FilterStep =
   /** Per-channel lookup on sRGB values 0–1, evenly sampled, linearly interpolated. */
   | { kind: "table"; values: number[] }
   /** Row-major 3×3 RGB matrix applied in linear light. */
-  | { kind: "matrix"; values: number[] };
+  | { kind: "matrix"; values: number[] }
+  /** Per-channel Y' = slope·Y + intercept in linear light. */
+  | { kind: "linear"; slope: number; intercept: number };
+
+/** Named settings for conditions that use presets instead of a strength slider. */
+export type Params = Readonly<Record<string, string>>;
+
+export interface ConditionControl {
+  id: string;
+  label: string;
+  options: readonly { id: string; label: string }[];
+  default: string;
+}
 
 export interface Condition {
   id: string;
@@ -46,16 +58,26 @@ export interface Condition {
     /** 0–1 */
     default: number;
   };
+  /**
+   * Optional preset controls. A condition with controls shows them instead of
+   * the strength slider and is applied at full strength.
+   */
+  controls?: readonly ConditionControl[];
   /** What this strength does, in real units, for the readout above the comparison. */
-  reading(strength: number): string;
+  reading(strength: number, params?: Params): string;
+  /** Optional: every assumption behind a result, in one line, shown beside the method. */
+  assumptions?(strength: number, params?: Params): string;
+  /** Optional: published sources for the model's figures, shown in the product. */
+  sources?: readonly { label: string; url: string }[];
   /** Optional: the same model as filter steps. Must match `apply` (tested). */
-  filter?(strength: number): FilterStep[];
-  /** Pure: must not mutate `src`. `strength` is 0–1. */
-  apply(src: PixelBuffer, strength: number): PixelBuffer;
+  filter?(strength: number, params?: Params): FilterStep[];
+  /** Pure: must not mutate `src`. `strength` is 0–1. Missing params mean the control defaults. */
+  apply(src: PixelBuffer, strength: number, params?: Params): PixelBuffer;
 }
 
 /** One entry in a stack of conditions (a scenario applies several in order). */
 export interface AppliedCondition {
   id: string;
   strength: number;
+  params?: Params;
 }

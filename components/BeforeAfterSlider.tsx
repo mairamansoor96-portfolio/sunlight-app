@@ -15,6 +15,10 @@ interface Props {
   right: Side;
   /** When this changes, the processed side wipes in from the right like a shutter. */
   wipeKey?: string;
+  /** While true, a tap samples the image instead of moving the divider. */
+  picking?: boolean;
+  /** Called with the tapped point as fractions of the image's width and height. */
+  onPick?: (fx: number, fy: number) => void;
 }
 
 const clampPct = (n: number) => Math.min(100, Math.max(0, n));
@@ -24,7 +28,7 @@ const clampPct = (n: number) => Math.min(100, Math.max(0, n));
  * with crop marks like a calibration print. Drag anywhere on the image, or
  * focus the handle and use the arrow keys.
  */
-export function BeforeAfterSlider({ before, after, left, right, wipeKey }: Props) {
+export function BeforeAfterSlider({ before, after, left, right, wipeKey, picking = false, onPick }: Props) {
   const [pos, setPos] = useState(50);
   const posRef = useRef(pos);
   const frame = useRef<HTMLDivElement>(null);
@@ -48,6 +52,13 @@ export function BeforeAfterSlider({ before, after, left, right, wipeKey }: Props
     );
   }, [wipeKey]);
 
+  // When picking starts, bring the screenshot into view: the pick button sits below it.
+  useEffect(() => {
+    if (!picking) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    frame.current?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+  }, [picking]);
+
   const moveTo = useCallback((clientX: number) => {
     const rect = frame.current?.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
@@ -56,6 +67,16 @@ export function BeforeAfterSlider({ before, after, left, right, wipeKey }: Props
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
+    if (picking) {
+      const rect = frame.current?.getBoundingClientRect();
+      if (rect && rect.width && rect.height) {
+        onPick?.(
+          Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)),
+          Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height)),
+        );
+      }
+      return;
+    }
     dragging.current = true;
     e.currentTarget.setPointerCapture(e.pointerId);
     moveTo(e.clientX);
@@ -108,7 +129,7 @@ export function BeforeAfterSlider({ before, after, left, right, wipeKey }: Props
         <i />
         <div
           ref={frame}
-          className="compare__frame"
+          className={`compare__frame${picking ? " is-picking" : ""}`}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}

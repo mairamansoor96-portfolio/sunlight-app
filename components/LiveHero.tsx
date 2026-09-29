@@ -33,6 +33,7 @@ const stepsFor = (id: string): FilterStep[] =>
 /** What to look for, derived from what the model does rather than hand-written per condition. */
 function noteFor(steps: FilterStep[]): string {
   if (steps.some((s) => s.kind === "blur")) return "Big letters survive. The 20/20 line goes first.";
+  if (steps.some((s) => s.kind === "linear")) return "Reflected light lifts every tone. Black turns grey and the rules fade.";
   if (steps.every((s) => s.kind === "matrix")) return "Black and grey pass through unchanged. Watch the duochrome bar.";
   return "The paper sinks to grey and the duochrome nearly goes black. Contrast is what’s left.";
 }
@@ -53,6 +54,14 @@ function Primitives({ steps }: { steps: FilterStep[] }) {
           </feComponentTransfer>
         );
       }
+      case "linear":
+        return (
+          <feComponentTransfer key={i} colorInterpolationFilters="linearRGB">
+            <feFuncR type="linear" slope={step.slope} intercept={step.intercept} />
+            <feFuncG type="linear" slope={step.slope} intercept={step.intercept} />
+            <feFuncB type="linear" slope={step.slope} intercept={step.intercept} />
+          </feComponentTransfer>
+        );
       case "matrix": {
         const m = step.values;
         const values = `${m[0]} ${m[1]} ${m[2]} 0 0 ${m[3]} ${m[4]} ${m[5]} 0 0 ${m[6]} ${m[7]} ${m[8]} 0 0 0 0 0 1 0`;

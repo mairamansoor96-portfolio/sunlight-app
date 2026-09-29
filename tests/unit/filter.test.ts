@@ -4,6 +4,8 @@ import { CONDITIONS, getCondition } from "@/lib/simulations";
 import { sigmaForWidth } from "@/lib/simulations/blur";
 import { DEUTERANOPIA, mixMatrix } from "@/lib/simulations/colorBlindness";
 import { dim } from "@/lib/simulations/dimRoom";
+import { glare, sunlightSettings } from "@/lib/simulations/sunlight";
+import { linearToSrgb, srgbToLinear } from "@/lib/simulations/color";
 
 /** Evaluate an evenly sampled table the way SVG feFuncX type="table" does. */
 function table(values: number[], x: number): number {
@@ -38,5 +40,18 @@ describe("live filters", () => {
   it("deuteranopia's matrix is the Machado matrix at the same severity", () => {
     const [step] = getCondition("deuteranopia").filter!(0.5);
     expect(step).toEqual({ kind: "matrix", values: [...mixMatrix(DEUTERANOPIA, 0.5)] });
+  });
+
+  it("sunlight's linear map matches its pixel LUT", () => {
+    const params = { light: "shade", phone: "budget" };
+    const [step] = getCondition("sunlight").filter!(1, params);
+    expect(step.kind).toBe("linear");
+    if (step.kind !== "linear") return;
+    const ramp = new Uint8ClampedArray(256 * 4);
+    for (let i = 0; i < 256; i++) ramp.set([i, i, i, 255], i * 4);
+    const out = glare({ width: 256, height: 1, data: ramp }, sunlightSettings(params).R);
+    for (let i = 0; i < 256; i++) {
+      expect(linearToSrgb(step.slope * srgbToLinear(i) + step.intercept)).toBe(out.data[i * 4]);
+    }
   });
 });

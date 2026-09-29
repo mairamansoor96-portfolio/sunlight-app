@@ -27,10 +27,11 @@ The goal is to upload a screenshot, pick one of three conditions, and wipe betwe
 
 ## Slice 2: measured sunlight (the headline feature)
 
-- [ ] Settle the R values for the shade, overcast and direct-sun presets, using published display-reflectance and outdoor-illuminance figures (SPEC.md → open question). Cite them in the product.
-- [ ] Sample text and background colours from the screenshot (automatically, or by the user clicking a pair).
-- [ ] Indoor versus outdoor WCAG contrast using `(L_light + 0.05 + R) / (L_dark + 0.05 + R)`, reported in plain language.
-- [ ] A direct-sunlight glare filter (Measured), with the contrast numbers alongside.
+- [x] Sunlight model written into SPEC.md: formula, viewing assumption, reflectances, light and phone presets, R table, sources.
+- [x] Glare image that reproduces the reported contrast exactly (affine map in linear light), also run live in the hero.
+- [x] Colour pairs found automatically (anti-aliasing ignored), plus tap-to-pick and keyboard colour inputs.
+- [x] Report: indoors vs overcast, open shade and direct sun for the chosen phone, in plain language, with assumptions and sources.
+- [ ] Source the two unsourced assumptions (0.5% diffuse reflectance; budget and mid-range full-screen brightness) and re-check the other figures at their primary pages.
 
 ## Slice 3: the rest of the MVP conditions
 

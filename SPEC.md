@@ -50,7 +50,85 @@ R is the reflected ambient light, relative to the screen's maximum brightness. I
 3. Recompute with R for presets like shade, overcast, and direct sun on a mid-range phone.
 4. Report plainly: "Your body text passes indoors. In afternoon sun on a mid-range phone, it drops below the minimum."
 
-**Open question:** choose defensible R values for each preset from published display-reflectance and outdoor-illuminance figures, and cite them in the product.
+**Open question:** choose defensible R values for each preset from published display-reflectance and outdoor-illuminance figures, and cite them in the product. *Answered below in "Sunlight model" (29 Sep 2026); the reflectance figures still want a better primary source.*
+
+### Sunlight model
+
+**Label:** Measured, with its assumptions stated next to every number. The colours come from the screenshot. The light is estimated from the published figures below, and the product shows those figures and their sources wherever it shows a result.
+
+**Viewing assumption.** The viewer tilts the phone so the sun's mirror image is not in view. Nobody can read a screen with the sun reflected in it, so that case is excluded, and the product says so. What remains is:
+
+- the screen mirroring the bright sky and surroundings (specular reflection), and
+- a little of the direct sun scattered by the screen's layers (diffuse reflection).
+
+**Reflected luminance** (cd/m², Lambertian approximation):
+
+```
+L_reflected = (ρ_specular × E_surround + ρ_diffuse × E_sun) / π
+R           = L_reflected / L_phone
+```
+
+**Assumptions**
+
+| Symbol | Value | Basis |
+| --- | --- | --- |
+| ρ_specular | 4.5% | Lowest average screen reflectance DisplayMate has measured on a phone (iPhone X, 2017). Uncoated glass reflects about 4% per surface. Using the best measured phone keeps the model optimistic. |
+| ρ_diffuse | 0.5% | **Assumption, not yet sourced.** Scattering from the display stack for light arriving outside the mirror direction. Needs a published measurement. |
+| E_surround, E_sun | see presets | Typical outdoor illuminance tables (below). |
+| L_phone | see presets | Full-screen white in the phone's outdoor boost mode, not the HDR highlight peak in marketing. |
+
+**Light presets** (illuminance falling on the screen)
+
+| Preset | E_surround | E_sun | Basis |
+| --- | --- | --- | --- |
+| Overcast | 10,000 lux | 0 | Bright overcast. Microsoft's table puts "cloudy outdoors" at 10,001–30,000 lux. Other tables go down to 1,000 lux for a dull day, so this is not a worst case. |
+| Open shade | 15,000 lux | 0 | Sunny day, out of direct sun. "Full daylight, not direct sun" is typically 10,000–25,000 lux. |
+| Direct sun | 20,000 lux | 80,000 lux | Clear midday: about 100,000 lux in total, the top of Microsoft's "direct sunlight" range (30,001–100,000). |
+
+**Phone presets** (L_phone)
+
+| Preset | L_phone | Basis |
+| --- | --- | --- |
+| Budget phone | 500 nits | **Assumption.** Typical of budget LCD panels. Needs a measured source. |
+| Mid-range phone | 1,000 nits | **Assumption.** Between budget panels and flagships. The default preset. |
+| Flagship phone | 1,600 nits | Recent Samsung and Apple flagships exceed 1,500 nits in direct sunlight. The 2,600–3,300 nit figures are small-area HDR peaks and aren't used. |
+
+**Resulting R** (reflected nits ÷ phone nits)
+
+| | Budget | Mid-range | Flagship |
+| --- | --- | --- | --- |
+| Overcast (143 nits reflected) | 0.29 | 0.14 | 0.09 |
+| Open shade (215 nits) | 0.43 | 0.21 | 0.13 |
+| Direct sun (414 nits) | 0.83 | 0.41 | 0.26 |
+
+Worked example, `#767676` on white (4.54:1 indoors, just passing AA), mid-range phone: overcast 3.19:1, open shade 2.84:1, direct sun 2.27:1. Even black on white falls to 3.16:1 in direct sun on a mid-range phone.
+
+**The glare image.** The simulated screenshot must show exactly the contrast the numbers report. In linear light, each channel Y becomes
+
+```
+Y' = a·Y + b,   a = 1.05 / (1.05 + R),   b = a·(0.05 + R) − 0.05
+```
+
+This keeps white at white (the eye adapts to the brightest thing on screen) and makes the WCAG ratio of any two rendered colours equal C_outdoor. It is an affine map in linear light, so the live hero can run it as an SVG filter too.
+
+**Colour pairs**
+
+- **Automatic:** find the screenshot's most common colours, keep pairs that sit next to each other often (text on its background, a button label on its fill), and report the lowest-contrast ones first. Near-identical neighbours below 1.25:1, such as hairline dividers, are skipped.
+- **Manual:** tap a text colour, then a background colour, in the screenshot. There is also a keyboard-operable colour input for each, so the feature passes Sunlight's own tests.
+
+**Thresholds:** 4.5:1 is shown as the pass line, because we can't tell body text from large text in a screenshot. The report notes that large text (24 px, or 18.66 px bold) and interface components need 3:1.
+
+**Report**, in plain language. For example: "4 of 6 colour pairs pass indoors. In direct sun on a mid-range phone, none do." Each pair shows its ratio indoors and under all three light presets for the chosen phone, with pass or fail written in words, not shown by colour alone.
+
+**Sources** (shown in the product)
+
+- Microsoft Learn, "Understanding and Interpreting Lux Values" (ambient light sensor ranges): https://learn.microsoft.com/en-us/windows/win32/sensorsapi/understanding-and-interpreting-lux-values
+- Typical daylight illuminance (overcast ~1,000; full daylight 10,000–25,000; direct sun 32,000–100,000 lux), e.g. CineD, "Shedding Light on Lumens, Lux and Latitude": https://www.cined.com/shedding-light-lumens-lux-latitude/
+- DisplayMate via 9to5Mac, iPhone X lowest measured screen reflectance, 4.5%: https://9to5mac.com/2017/11/06/displaymate-iphone-x-display-rating/
+- Glass reflects about 4% per surface at normal incidence: Lambda Research, "Sunlight Readable Display Design": https://lambdares.com/news/sunlight-readable-display-ambient-contrast-tracepro
+- Flagship outdoor brightness above 1,500 nits: Yahoo Tech display tests: https://tech.yahoo.com/phones/articles/phone-display-best-ran-5-043000010.html
+
+**Still to source:** ρ_diffuse (0.5%), and measured full-screen outdoor brightness for budget and mid-range phones. These were read from search summaries only, because the primary pages weren't reachable when this was written; verify before publishing the case study.
 
 ## Interactive tests
 
