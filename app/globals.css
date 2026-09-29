@@ -1,0 +1,591 @@
+/*
+ * Sunlight: warm, bright, confident (SPEC.md → Personality and visual direction).
+ * Every text/background pair here is checked for WCAG AA in tests/unit/theme.test.ts.
+ * If you add a colour token, add its pairs to that test.
+ */
+
+:root {
+  --bg: #fff6e5;
+  --surface: #ffffff;
+  --surface-warm: #ffedcc;
+  --ink: #2a1a0b;
+  --ink-muted: #6b4a25;
+  --sun: #ffb627;
+  --ember: #a3400a;
+  --line: #ecd3a8;
+  --line-strong: #8f6a3a;
+  --on-overlay: #ffffff;
+
+  --measured-bg: #dcf1e3;
+  --measured-ink: #1b5732;
+  --modelled-bg: #e4e7fb;
+  --modelled-ink: #2e3a8c;
+  --illustrative-bg: #fbe2e9;
+  --illustrative-ink: #872244;
+
+  --error-bg: #fde4dc;
+  --error-ink: #8f1d06;
+
+  --radius: 14px;
+  --shadow: 0 1px 2px rgb(42 26 11 / 0.06), 0 8px 24px rgb(163 64 10 / 0.08);
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 500px at 85% -120px, rgb(255 182 39 / 0.35), transparent 70%),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  accent-color: var(--ember);
+}
+
+:focus-visible {
+  outline: 3px solid var(--ember);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--ember);
+}
+
+kbd {
+  font: inherit;
+  font-size: 0.85em;
+  padding: 0.05em 0.4em;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--surface);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 10;
+  padding: 0.6rem 1rem;
+  background: var(--ink);
+  color: var(--on-overlay);
+  border-radius: 8px;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* ---------- Masthead & hero ---------- */
+
+.masthead,
+.page,
+.footer {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+@media (min-width: 640px) {
+  .masthead,
+  .page,
+  .footer {
+    padding-inline: 32px;
+  }
+}
+
+.masthead {
+  padding-block: 20px 0;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.wordmark__sun {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--sun);
+  box-shadow: 0 0 0 4px rgb(255 182 39 / 0.3), 0 0 0 9px rgb(255 182 39 / 0.14);
+}
+
+.hero {
+  padding-block: 40px 28px;
+  max-width: 46rem;
+}
+
+.hero__title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.hero__title em {
+  font-style: italic;
+  color: var(--ember);
+}
+
+.hero__lede {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 1.15rem;
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+}
+
+/* ---------- Buttons ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.6rem 1.15rem;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  font: inherit;
+  font-weight: 650;
+  line-height: 1.2;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.button--primary {
+  background: var(--sun);
+  color: var(--ink);
+}
+.button--primary:hover {
+  background: #ffc453;
+}
+
+.button--quiet {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.button--quiet:hover {
+  background: var(--surface-warm);
+}
+
+/* The file input is visually hidden; show focus on its visible label. */
+.upload label:has(+ input[type="file"]:focus-visible) {
+  outline: 3px solid var(--ember);
+  outline-offset: 2px;
+}
+
+/* ---------- Upload ---------- */
+
+.upload {
+  display: grid;
+  gap: 0.9rem;
+  justify-items: start;
+  padding: 28px;
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.upload--over {
+  border-style: solid;
+  border-color: var(--ember);
+  background: var(--surface-warm);
+}
+
+.upload--compact {
+  padding: 14px 16px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--line);
+  box-shadow: none;
+}
+
+.upload__lead {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.upload__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.upload__note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.upload__error {
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  background: var(--error-bg);
+  color: var(--error-ink);
+  font-weight: 600;
+}
+
+/* ---------- Workspace ---------- */
+
+.studio {
+  display: grid;
+  gap: 24px;
+}
+
+.studio__workspace {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .studio__workspace {
+    /* Stage first in the DOM (see it before tweaking it on a phone); controls
+       sit to the right on wide screens, like a design tool's inspector. */
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  }
+  .studio__controls {
+    position: sticky;
+    top: 16px;
+  }
+}
+
+.studio__controls {
+  display: grid;
+  gap: 18px;
+}
+
+/* ---------- Condition picker ---------- */
+
+.picker {
+  display: grid;
+  gap: 16px;
+}
+
+.picker__family {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.picker__legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.option {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.option:hover {
+  border-color: var(--line-strong);
+}
+
+.option--selected {
+  border: 2px solid var(--ember);
+  padding: 11px 13px;
+  background: var(--surface-warm);
+}
+
+.option__radio {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.2rem 0 0;
+  flex: none;
+}
+
+.option__body {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.option__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.option__name {
+  font-weight: 700;
+}
+
+.option__blurb {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.badge--measured {
+  background: var(--measured-bg);
+  color: var(--measured-ink);
+}
+.badge--modelled {
+  background: var(--modelled-bg);
+  color: var(--modelled-ink);
+}
+.badge--illustrative {
+  background: var(--illustrative-bg);
+  color: var(--illustrative-ink);
+}
+
+/* ---------- Strength & method ---------- */
+
+.strength {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.strength__label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 650;
+}
+
+.strength__value {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.strength input[type="range"] {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+}
+
+.method {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+
+.method__head {
+  margin: 0 0 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.method__body {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+/* ---------- Before/after slider ---------- */
+
+.compare {
+  display: grid;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* Labels never widen the comparison: its width comes from the image alone. */
+.compare__tags {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+  contain: inline-size;
+}
+
+.compare__frame {
+  position: relative;
+  max-width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow), 0 0 0 1px var(--line);
+  background: var(--surface);
+  cursor: ew-resize;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.compare__layer {
+  line-height: 0;
+}
+
+.compare__layer--after {
+  position: absolute;
+  inset: 0;
+}
+
+.pixel-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 78vh;
+  width: auto;
+  height: auto;
+}
+
+.compare__layer--after .pixel-canvas {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
+.compare__tag {
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.compare__tag:first-child {
+  flex: none;
+  white-space: nowrap;
+}
+.compare__tag--after {
+  text-align: right;
+}
+
+.compare__divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1.5px;
+  background: var(--on-overlay);
+  box-shadow: 0 0 0 1px rgb(42 26 11 / 0.45);
+}
+
+.compare__handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: var(--sun);
+  color: var(--ink);
+  box-shadow: 0 2px 10px rgb(42 26 11 / 0.3);
+  cursor: ew-resize;
+}
+
+.compare__handle:focus-visible {
+  outline: 3px solid var(--on-overlay);
+  outline-offset: 0;
+  box-shadow: 0 0 0 6px var(--ember);
+}
+
+.stage__status {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+/* ---------- Limits & footer ---------- */
+
+.limits {
+  margin-block: 48px 0;
+  padding: 20px 22px;
+  max-width: 46rem;
+  border-left: 4px solid var(--sun);
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.limits__title {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.limits p {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.footer {
+  padding-block: 40px;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.footer p {
+  margin: 0;
+  max-width: 46rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
